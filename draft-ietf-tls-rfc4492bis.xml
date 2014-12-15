@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis" category="std">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-01" category="std">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -35,7 +35,7 @@
     <workgroup>TLS Working Group</workgroup>
     <keyword>Internet-Draft</keyword>
     <abstract>
-      <t> This document describes key exchange algorithms based on Elliptic Curve Cryptography (ECC) for the Transport Layer Security (TLS) protocol.  In particular, it specifies the use of Elliptic Curve Diffie-Hellman (ECDH) key agreement in a TLS handshake and the use of Elliptic Curve Digital Signature Algorithm (ECDSA) as a new authentication mechanism.</t>
+      <t> This document describes key exchange algorithms based on Elliptic Curve Cryptography (ECC) for the Transport Layer Security (TLS) protocol.  In particular, it specifies the use of Ephemeral Elliptic Curve Diffie-Hellman (ECDHE) key agreement in a TLS handshake and the use of Elliptic Curve Digital Signature Algorithm (ECDSA) as a new authentication mechanism.</t>
     </abstract>
   </front>
  <!-- 
@@ -60,7 +60,7 @@
       </texttable>
       <t> Smaller key sizes result in savings for power, memory, bandwidth, and computational cost that make ECC especially attractive for constrained environments.</t>
       <t> This document describes additions to TLS to support ECC, applicable to TLS versions 1.0 <xref target="RFC2246"/>, 1.1 <xref target="RFC4346"/>, and 1.2 <xref target="RFC5246"/>.  The use of ECC in TLS 1.3 is defined in <xref target="I-D.ietf-tls-tls13" />, and is explicitly out of scope for this document. In particular, this document defines:<list style="symbols">
-        <t> the use of the Elliptic Curve Diffie-Hellman (ECDH) key agreement scheme with long-term or ephemeral keys to establish the TLS premaster secret, and</t>
+        <t> the use of the Elliptic Curve Diffie-Hellman key agreement scheme with ephemeral keys to establish the TLS premaster secret, and</t>
         <t>the use of fixed-ECDH certificates and ECDSA for authentication of TLS peers.</t></list></t>
       <t> The remainder of this document is organized as follows. <xref target="ecdh"/> provides an overview of ECC-based key exchange algorithms for TLS. <xref target="clientauth"/> describes the use of ECC certificates for client authentication.  TLS extensions that allow a client to negotiate the use of specific curves and point formats are presented in <xref target="tlsext"/>. <xref target="structs"/> specifies various data structures needed for an ECC-based handshake, their encoding in TLS messages, and the processing of those messages.  <xref target="suites"/> defines ECC-based cipher suites and identifies a small subset of these as recommended for all implementations of this specification. <xref target="sec"/> discusses security considerations. <xref target="iana"/> describes IANA considerations for the name spaces created by this document's predecessor. <xref target="ack" /> gives acknowledgements. <xref target="rfc4492diff" /> provides differences from <xref target="RFC4492" />, the document that this one replaces.</t>
       <t> Implementation of this specification requires familiarity with TLS, TLS extensions <xref target="RFC4366" />, and ECC (TBD: reference Wikipedia here?).</t>
@@ -71,25 +71,21 @@
       </section>
     </section>
     <section anchor="ecdh" title="Key Exchange Algorithm">
-      <t> This document introduces five new ECC-based key exchange algorithms for TLS.  All of them use ECDH to compute the TLS premaster secret, and they differ only in the lifetime of ECDH keys (long-term or ephemeral) and the mechanism (if any) used to authenticate them.  The derivation of the TLS master secret from the premaster secret and the subsequent generation of bulk encryption/MAC keys and initialization vectors is independent of the key exchange algorithm and not impacted by the introduction of ECC.</t>
-      <t> The table below summarizes the new key exchange algorithms, which mimic DH_DSS, DHE_DSS, DH_RSA, DHE_RSA, and DH_anon, respectively.</t>
+      <t> This document defines three new ECC-based key exchange algorithms for TLS.  All of them use Ephemeral ECDH (ECDHE) to compute the TLS premaster secret, and they differ only in the mechanism (if any) used to authenticate them.  The derivation of the TLS master secret from the premaster secret and the subsequent generation of bulk encryption/MAC keys and initialization vectors is independent of the key exchange algorithm and not impacted by the introduction of ECC.</t>
+      <t> The table below summarizes the new key exchange algorithms, which mimic DHE_DSS, DHE_RSA, and DH_anon, respectively.</t>
       <texttable anchor="tbl2" title="ECC Key Exchange Algorithms">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Description</ttcol>
-        <c>ECDH_ECDSA</c><c>Fixed ECDH with ECDSA-signed certificates.</c>
         <c>ECDHE_ECDSA</c><c>Ephemeral ECDH with ECDSA signatures.</c>
-        <c>ECDH_RSA</c><c>Fixed ECDH with RSA-signed certificates.</c>
         <c>ECDHE_RSA</c><c>Ephemeral ECDH with RSA signatures.</c>
         <c>ECDH_anon</c><c>Anonymous ECDH, no signatures.</c>
       </texttable>
       <t> The ECDHE_ECDSA and ECDHE_RSA key exchange mechanisms provide forward secrecy.  With ECDHE_RSA, a server can reuse its existing RSA certificate and easily comply with a constrained client's elliptic curve preferences (see <xref target="tlsext"/>).  However, the computational cost incurred by a server is higher for ECDHE_RSA than for the traditional RSA key exchange, which does not provide forward secrecy.</t>
-      <t> The ECDH_RSA mechanism requires a server to acquire an ECC certificate, but the certificate issuer can still use an existing RSA key for signing.  This eliminates the need to update the keys of trusted certification authorities accepted by TLS clients.  The ECDH_ECDSA mechanism requires ECC keys for the server as well as the certification authority and is best suited for constrained devices unable to support RSA.</t>
-      <t> The anonymous key exchange algorithm does not provide authentication of the server or the client.  Like other anonymous TLS key exchanges, it is subject to man-in-the-middle attacks.  Implementations of this algorithm SHOULD provide authentication by other means.</t>
+      <t> The anonymous key exchange algorithm does not provide authentication of the server or the client.  Like other anonymous TLS key exchanges, it is subject to man-in-the-middle attacks. Implementations of this algorithm SHOULD provide authentication by other means.</t>
       <t> Note that there is no structural difference between ECDH and ECDSA keys.  A certificate issuer may use X.509 v3 keyUsage and extendedKeyUsage extensions to restrict the use of an ECC public key to certain computations.  This document refers to an ECC key as ECDH-capable if its use in ECDH is permitted.  ECDSA-capable is defined similarly. <figure>
         <artwork><![CDATA[
        Client                                        Server
        ------                                        ------
-
        ClientHello          -------->
                                                 ServerHello
                                                Certificate*
@@ -103,30 +99,18 @@
        Finished             -------->
                                          [ChangeCipherSpec]
                             <--------              Finished
-
        Application Data     <------->      Application Data
-
-
             * message is not sent under some conditions
             + message is not sent unless client authentication
               is desired
 ]]></artwork><postamble>Figure 1: Message flow in a full TLS handshake</postamble>
         </figure></t>
       <t> Figure 1 shows all messages involved in the TLS key establishment protocol (aka full handshake).  The addition of ECC has direct impact only on the ClientHello, the ServerHello, the server's Certificate message, the ServerKeyExchange, the ClientKeyExchange, the CertificateRequest, the client's Certificate message, and the CertificateVerify.  Next, we describe each ECC key exchange algorithm in greater detail in terms of the content and processing of these messages.  For ease of exposition, we defer discussion of client authentication and associated messages (identified with a + in Figure 1) until <xref target="clientauth" /> and of the optional ECC-specific extensions (which impact the Hello messages) until <xref target="tlsext" />.</t>
-      <section anchor="ecdh_ecdsa" title="ECDH_ECDSA">
-        <t> In ECDH_ECDSA, the server's certificate MUST contain an ECDH-capable public key and be signed with ECDSA.</t>
-        <t> A ServerKeyExchange MUST NOT be sent (the server's certificate contains all the necessary keying information required by the client to arrive at the premaster secret).</t>
-        <t> The client generates an ECDH key pair on the same curve as the server's long-term public key and sends its public key in the ClientKeyExchange message (except when using client authentication algorithm ECDSA_fixed_ECDH or RSA_fixed_ECDH, in which case the modifications from <xref target="ecdsa_fixed_ecdh"/> or <xref target="rsa_fixed_ecdh"/>.</t>
-        <t> Both client and server perform an ECDH operation and use the resultant shared secret as the premaster secret.  All ECDH calculations are performed as specified in <xref target="alg_computes"/>.</t>
-      </section>
       <section anchor="ecdhe_ecdsa" title="ECDHE_ECDSA">
         <t> In ECDHE_ECDSA, the server's certificate MUST contain an ECDSA-capable public key and be signed with ECDSA.</t>
         <t> The server sends its ephemeral ECDH public key and a specification of the corresponding curve in the ServerKeyExchange message.  These parameters MUST be signed with ECDSA using the private key corresponding to the public key in the server's Certificate.</t>
         <t> The client generates an ECDH key pair on the same curve as the server's ephemeral ECDH key and sends its public key in the ClientKeyExchange message.</t>
         <t> Both client and server perform an ECDH operation <xref target="alg_computes"/> and use the resultant shared secret as the premaster secret.</t>
-      </section>
-      <section anchor="ecdh_rsa" title="ECDH_RSA">
-        <t> This key exchange algorithm is the same as ECDH_ECDSA except that the server's certificate MUST be signed with RSA rather than ECDSA.</t>
       </section>
       <section anchor="ecdhe_rsa" title="ECDHE_RSA">
         <t> This key exchange algorithm is the same as ECDHE_ECDSA except that the server's certificate MUST contain an RSA public key authorized for signing, and that the signature in the ServerKeyExchange message must be computed with the corresponding RSA private key.  The server certificate MUST be signed with RSA.</t>
@@ -136,26 +120,18 @@
         <t> The server MUST send an ephemeral ECDH public key and a specification of the corresponding curve in the ServerKeyExchange message.  These parameters MUST NOT be signed.</t>
         <t> The client generates an ECDH key pair on the same curve as the server's ephemeral ECDH key and sends its public key in the ClientKeyExchange message.</t>
         <t> Both client and server perform an ECDH operation and use the resultant shared secret as the premaster secret.  All ECDH calculations are performed as specified in <xref target="alg_computes"/>.</t>
-        <t> Note that while the ECDH_ECDSA, ECDHE_ECDSA, ECDH_RSA, and ECDHE_RSA key exchange algorithms require the server's certificate to be signed with a particular signature scheme, this specification (following the similar cases of DH_DSS, DHE_DSS, DH_RSA, and DHE_RSA in the TLS base documents) does not impose restrictions on signature schemes used elsewhere in the certificate chain.  (Often such restrictions will be useful, and it is expected that this will be taken into account in certification authorities' signing practices.  However, such restrictions are not strictly required in general: Even if it is beyond the capabilities of a client to completely validate a given chain, the client may be able to validate the server's certificate by relying on a trusted certification authority whose certificate appears as one of the intermediate certificates in the chain.)</t>
+        <t> Note that while the ECDHE_ECDSA and ECDHE_RSA key exchange algorithms require the server's certificate to be signed with a particular signature scheme, this specification (following the similar cases of DHE_DSS, and DHE_RSA in the TLS base documents) does not impose restrictions on signature schemes used elsewhere in the certificate chain.  (Often such restrictions will be useful, and it is expected that this will be taken into account in certification authorities' signing practices.  However, such restrictions are not strictly required in general: Even if it is beyond the capabilities of a client to completely validate a given chain, the client may be able to validate the server's certificate by relying on a trusted certification authority whose certificate appears as one of the intermediate certificates in the chain.)</t>
       </section>
     </section>
     <section anchor="clientauth" title="Client Authentication">
-      <t> This document defines three new client authentication mechanisms, each named after the type of client certificate involved: ECDSA_sign, ECDSA_fixed_ECDH, and RSA_fixed_ECDH.  The ECDSA_sign mechanism is usable with any of the non-anonymous ECC key exchange algorithms described in <xref target="ecdh"/> as well as other non-anonymous (non-ECC) key exchange algorithms defined in TLS.  The ECDSA_fixed_ECDH and RSA_fixed_ECDH mechanisms are usable with ECDH_ECDSA and ECDH_RSA. Their use with ECDHE_ECDSA and ECDHE_RSA is prohibited because the use of a long-term ECDH client key would jeopardize the forward secrecy property of these algorithms.</t>
-      <t> The server can request ECC-based client authentication by including one or more of these certificate types in its CertificateRequest message.  The server must not include any certificate types that are prohibited for the negotiated key exchange algorithm.  The client must check if it possesses a certificate appropriate for any of the methods suggested by the server and is willing to use it for authentication.</t>
+      <t> This document defines a client authentication mechanism, named after the type of client certificate involved: ECDSA_sign.  The ECDSA_sign mechanism is usable with any of the non-anonymous ECC key exchange algorithms described in <xref target="ecdh"/> as well as other non-anonymous (non-ECC) key exchange algorithms defined in TLS.</t>
+      <t> The server can request ECC-based client authentication by including this certificate type in its CertificateRequest message. The client must check if it possesses a certificate appropriate for the method suggested by the server and is willing to use it for authentication.</t>
       <t> If these conditions are not met, the client should send a client Certificate message containing no certificates.  In this case, the ClientKeyExchange should be sent as described in <xref target="ecdh"/>, and the CertificateVerify should not be sent.  If the server requires client authentication, it may respond with a fatal handshake failure alert.</t>
       <t> If the client has an appropriate certificate and is willing to use it for authentication, it must send that certificate in the client's Certificate message (as per <xref target="client_cert"/>) and prove possession of the private key corresponding to the certified key.  The process of determining an appropriate certificate and proving possession is different for each authentication mechanism and described below.</t>
       <t> NOTE: It is permissible for a server to request (and the client to send) a client certificate of a different type than the server certificate.</t>
       <section anchor="ecdsa_sign" title="ECDSA_sign">
         <t> To use this authentication mechanism, the client MUST possess a certificate containing an ECDSA-capable public key and signed with ECDSA.</t>
         <t> The client proves possession of the private key corresponding to the certified key by including a signature in the CertificateVerify message as described in <xref target="cert_verify"/>.</t>
-      </section>
-      <section anchor="ecdsa_fixed_ecdh" title="ECDSA_fixed_ECDH">
-        <t> To use this authentication mechanism, the client MUST possess a certificate containing an ECDH-capable public key, and that certificate MUST be signed with ECDSA.  Furthermore, the client's ECDH key MUST be on the same elliptic curve as the server's long-term (certified) ECDH key.  This might limit use of this mechanism to closed environments.  In situations where the client has an ECC key on a different curve, it would have to authenticate using either ECDSA_sign or a non-ECC mechanism (e.g., RSA).  Using fixed ECDH for both servers and clients is computationally more efficient than mechanisms providing forward secrecy.</t>
-        <t> When using this authentication mechanism, the client MUST send an empty ClientKeyExchange as described in <xref target="cke"/> and MUST NOT send the CertificateVerify message.  The ClientKeyExchange is empty since the client's ECDH public key required by the server to compute the premaster secret is available inside the client's certificate.  The client's ability to arrive at the same premaster secret as the server (demonstrated by a successful exchange of Finished messages) proves possession of the private key corresponding to the certified public key, and the CertificateVerify message is unnecessary.</t>
-      </section>
-      <section anchor="rsa_fixed_ecdh" title="RSA_fixed_ECDH">
-        <t> This authentication mechanism is identical to ECDSA_fixed_ECDH except that the client's certificate MUST be signed with RSA.</t>
-        <t> Note that while the ECDSA_sign, ECDSA_fixed_ECDH, and RSA_fixed_ECDH client authentication mechanisms require the client's certificate to be signed with a particular signature scheme, this specification does not impose restrictions on signature schemes used elsewhere in the certificate chain.  (Often such restrictions will be useful, and it is expected that this will be taken into account in certification authorities' signing practices.  However, such restrictions are not strictly required in general: Even if it is beyond the capabilities of a server to completely validate a given chain, the server may be able to validate the clients certificate by relying on a trust anchor that appears as one of the intermediate certificates in the chain.)</t>
       </section>
     </section>
     <section anchor="tlsext" title="TLS Extensions for ECC">
@@ -224,7 +200,6 @@
         enum { uncompressed (0), ansiX962_compressed_prime (1),
                ansiX962_compressed_char2 (2), reserved (248..255)
         } ECPointFormat;
-
         struct {
             ECPointFormat ec_point_format_list<1..2^8-1>
         } ECPointFormatList;
@@ -245,7 +220,7 @@
         <t> When this extension is sent:</t>
         <t> The Supported Point Formats Extension is included in a ServerHello message in response to a ClientHello message containing the Supported Point Formats Extension when negotiating an ECC cipher suite.</t>
         <t> Meaning of this extension:</t>
-        <t> This extension allows a server to enumerate the point formats it can parse (for the curve that will appear in its ServerKeyExchange message when using the ECDHE_ECDSA, ECDHE_RSA, or ECDH_anon key exchange algorithm, or for the curve that is used in the server's public key that will appear in its Certificate message when using the ECDH_ECDSA or ECDH_RSA key exchange algorithm).</t>
+        <t> This extension allows a server to enumerate the point formats it can parse (for the curve that will appear in its ServerKeyExchange message when using the ECDHE_ECDSA, ECDHE_RSA, or ECDH_anon key exchange algorithm.</t>
         <t> Structure of this extension:</t>
         <t> The server's Supported Point Formats Extension has the same structure as the client's Supported Point Formats Extension (see <xref target="supp_pf_ext"/>).  Items in ec_point_format_list here are ordered according to the server's preference (favorite choice first).  Note that the server may include items that were not found in the client's list (e.g., the server may prefer to receive points in compressed format even when a client cannot parse this format: the same client may nevertheless be capable of outputting points in compressed format).</t>
         <t> Actions of the sender:</t>
@@ -262,9 +237,7 @@
         <texttable anchor="tbl3" title="Server Certificate Types">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Server Certificate Type</ttcol>
-        <c>ECDH_ECDSA</c><c>Certificate MUST contain an ECDH-capable public key.  It MUST be signed with ECDSA.</c>
         <c>ECDHE_ECDSA</c><c>Certificate MUST contain an ECDSA-capable public key.  It MUST be signed with ECDSA.</c>
-        <c>ECDH_RSA</c><c>Certificate MUST contain an ECDH-capable public key.  It MUST be signed with RSA.</c>
         <c>ECDHE_RSA</c><c>Certificate MUST contain an RSA public key authorized for use in digital signatures.  It MUST be signed with RSA.</c>
       </texttable>
       <t> Structure of this message:</t>
@@ -365,14 +338,12 @@
           <t hangText="params:"> Specifies the ECDH public key and associated domain parameters.</t>
           <t hangText="signed_params:"> A hash of the params, with the signature appropriate to that hash applied.  The private key corresponding to the certified public key in the server's Certificate message is used for signing.<figure><artwork><![CDATA[
      enum { ecdsa } SignatureAlgorithm;
-
      select (SignatureAlgorithm) {
         case ecdsa:
              digitally-signed struct {
                  opaque sha_hash[sha_size];
              };
      } Signature;
-
    ServerKeyExchange.signed_params.sha_hash
        SHA(ClientHello.random + ServerHello.random +
                               ServerKeyExchange.params);
@@ -491,23 +462,11 @@
       <texttable anchor="tbl5" title="TLS ECC cipher suites">
           <ttcol align="left">CipherSuite</ttcol>
           <ttcol align="left">Identifier</ttcol>
-          <c>TLS_ECDH_ECDSA_WITH_NULL_SHA</c><c>{ 0xC0, 0x01 }</c>
-          <c>TLS_ECDH_ECDSA_WITH_RC4_128_SHA</c><c>{ 0xC0, 0x02 }</c>
-          <c>TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x03 }</c>
-          <c>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x04 }</c>
-          <c>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x05 }</c>
-                    <c> </c><c> </c>
           <c>TLS_ECDHE_ECDSA_WITH_NULL_SHA</c><c>{ 0xC0, 0x06 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_RC4_128_SHA</c><c>{ 0xC0, 0x07 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x08 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x09 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x0A }</c>
-                    <c> </c><c> </c>
-          <c>TLS_ECDH_RSA_WITH_NULL_SHA</c><c>{ 0xC0, 0x0B }</c>
-          <c>TLS_ECDH_RSA_WITH_RC4_128_SHA</c><c>{ 0xC0, 0x0C }</c>
-          <c>TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x0D }</c>
-          <c>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x0E }</c>
-          <c>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x0F }</c>
                     <c> </c><c> </c>
           <c>TLS_ECDHE_RSA_WITH_NULL_SHA</c><c>{ 0xC0, 0x10 }</c>
           <c>TLS_ECDHE_RSA_WITH_RC4_128_SHA</c><c>{ 0xC0, 0x11 }</c>
@@ -523,10 +482,10 @@
       </texttable>
       <t> The key exchange method, cipher, and hash algorithm for each of these cipher suites are easily determined by examining the name.  Ciphers (other than AES ciphers) and hash algorithms are defined in <xref target="RFC2246"/> and <xref target="RFC4346"/>. AES ciphers are defined in <xref target="RFC5246"/>.</t>
       <t> Server implementations SHOULD support all of the following cipher suites, and client implementations SHOULD support at least one of them:<list style="symbols">
-        <t> TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA</t>
-        <t> TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA</t>
-        <t> TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</t>
-        <t> TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.</t></list></t>
+        <t> TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</t>
+        <t> TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</t>
+        <t> TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</t>
+        <t> TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256</t></list></t>
     </section>
     <section anchor="sec" title="Security Considerations">
       <t> Security issues are discussed throughout this memo.</t>
@@ -534,7 +493,7 @@
       <t> Security discussions specific to ECC can be found in <xref target="IEEE.P1363.1998"/> and <xref target="ANSI.X9-62.2005"/>. One important issue that implementers and users must consider is elliptic curve selection.  Guidance on selecting an appropriate elliptic curve size is given in Table 1.</t>
       <t> Beyond elliptic curve size, the main issue is elliptic curve structure.  As a general principle, it is more conservative to use elliptic curves with as little algebraic structure as possible. Thus, random curves are more conservative than special curves such as Koblitz curves, and curves over F_p with p random are more conservative than curves over F_p with p of a special form (and curves over F_p with p random might be considered more conservative than curves over F_2^m as there is no choice between multiple fields of similar size for characteristic 2).  Note, however, that algebraic structure can also lead to implementation efficiencies, and implementers and users may, therefore, need to balance conservatism against a need for efficiency.  Concrete attacks are known against only very few special classes of curves, such as supersingular curves, and these classes are excluded from the ECC standards that this document references <xref target="IEEE.P1363.1998"/>, <xref target="ANSI.X9-62.2005"/>.</t>
       <t> Another issue is the potential for catastrophic failures when a single elliptic curve is widely used.  In this case, an attack on the elliptic curve might result in the compromise of a large number of keys.  Again, this concern may need to be balanced against efficiency and interoperability improvements associated with widely-used curves. Substantial additional information on elliptic curve choice can be found in <xref target="IEEE.P1363.1998"/>, <xref target="ANSI.X9-62.2005"/>, and <xref target="FIPS.186-4"/>.</t>
-      <t> Implementers and users must also consider whether they need forward secrecy.  Forward secrecy refers to the property that session keys are not compromised if the static, certified keys belonging to the server and client are compromised.  The ECDHE_ECDSA and ECDHE_RSA key exchange algorithms provide forward secrecy protection in the event of server key compromise, while ECDH_ECDSA and ECDH_RSA do not. Similarly, if the client is providing a static, certified key, ECDSA_sign client authentication provides forward secrecy protection in the event of client key compromise, while ECDSA_fixed_ECDH and RSA_fixed_ECDH do not.  Thus, to obtain complete forward secrecy protection, ECDHE_ECDSA or ECDHE_RSA must be used for key exchange, with ECDSA_sign used for client authentication if necessary.  Here again the security benefits of forward secrecy may need to be balanced against the improved efficiency offered by other options.</t>
+      <t> All of the key exchange algorithms defined in this document provide forward secrecy. Some of the deprecated key exchange algorithms do not.</t>
     </section>
     <section anchor="iana" title="IANA Considerations">
       <t> <xref target="RFC4492" />, the predecessor of this document has already defined the IANA registries for the following:<list style="symbols">
@@ -554,6 +513,10 @@
     </section>
     <section anchor="history" title="Version History for This Draft">
       <t> NOTE TO RFC EDITOR: PLEASE REMOVE THIS SECTION</t>
+      <t> Changes from draft-nir-tls-rfc4492bis-00 and draft-ietf-tls-rfc4492bis-00 to draft-nir-tls-rfc4492bis-01:<list style="symbols">
+        <t> Merged errata</t>
+        <t> Removed ECDH_RSA and ECDH_ECDSA</t>
+        </list></t>
       <t> Changes from RFC 4492 to draft-nir-tls-rfc4492bis-00:<list style="symbols">
         <t> Added TLS 1.2 to references.</t>
         <t> Moved RFC 4492 authors to acknowledgements.</t>
@@ -804,7 +767,21 @@
     <section anchor="rfc4492diff" title="Differences from RFC 4492">
       <t><list style="symbols">
         <t> Added TLS 1.2</t>
+        <t> Merged Errata</t>
+        <t> Removed the ECDH key exchange algorithms: ECDH_RSA and ECDH_ECDSA</t>
+        <t> Deprecated a bunch of ciphersuites:<list style="synmbols">
+          <t>TLS_ECDH_ECDSA_WITH_NULL_SHA</t>
+          <t>TLS_ECDH_ECDSA_WITH_RC4_128_SHA</t>
+          <t>TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA</t>
+          <t>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA</t>
+          <t>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA</t>
+          <t>TLS_ECDH_RSA_WITH_NULL_SHA</t>
+          <t>TLS_ECDH_RSA_WITH_RC4_128_SHA</t>
+          <t>TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA</t>
+          <t>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA</t>
+          <t>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</t></list></t>
       </list></t>
     </section>
   </back>
 </rfc>
+
