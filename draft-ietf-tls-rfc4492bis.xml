@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-01" category="std">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-02" category="std">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -30,7 +30,7 @@
         <email>ynir.ietf@gmail.com</email>
       </address>
     </author>
-    <date year="2014"/>
+    <date year="2015"/>
     <area>Security Area</area>
     <workgroup>TLS Working Group</workgroup>
     <keyword>Internet-Draft</keyword>
