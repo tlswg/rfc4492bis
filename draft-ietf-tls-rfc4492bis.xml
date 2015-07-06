@@ -282,7 +282,7 @@
         <section anchor="supp_ec_ext" title="Supported Elliptic Curves Extension">
           <t> RFC 4492 defined 25 different curves in the NamedCurve registry for use in TLS. Only three have seen 
             any use. This specification is deprecating the rest (with numbers 1-22). This specification also 
-            deprecates the explicit curves with identifiers 0xFF01 and 0xFF02. This leaves only the following:
+            deprecates the explicit curves with identifiers 0xFF01 and 0xFF02. This leaves only the following:</t>
           <figure><artwork><![CDATA[
         enum {
             deprecated(1..22),
