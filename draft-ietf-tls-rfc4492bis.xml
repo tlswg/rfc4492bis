@@ -59,11 +59,11 @@
         <ttcol align="center">Symmetric</ttcol>
         <ttcol align="center">ECC</ttcol>
         <ttcol align="center">DH/DSA/RSA</ttcol>
-        <c>80</c><c>163</c><c>1024</c>
-        <c>112</c><c>233</c><c>2048</c>
-        <c>128</c><c>283</c><c>3072</c>
-        <c>192</c><c>409</c><c>7680</c>
-        <c>256</c><c>571</c><c>15360</c>
+        <c>80</c><c>&gt;=158</c><c>1024</c>
+        <c>112</c><c>&gt;=221</c><c>2048</c>
+        <c>128</c><c>&gt;=252</c><c>3072</c>
+        <c>192</c><c>&gt;=379</c><c>7680</c>
+        <c>256</c><c>&gt;=506</c><c>15360</c>
       </texttable>
       <t> Smaller key sizes result in savings for power, memory, bandwidth, and computational cost that make ECC 
         especially attractive for constrained environments.</t>
