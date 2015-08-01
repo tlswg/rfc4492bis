@@ -98,18 +98,19 @@
         authenticate them.  The derivation of the TLS master secret from the premaster secret and the subsequent 
         generation of bulk encryption/MAC keys and initialization vectors is independent of the key exchange 
         algorithm and not impacted by the introduction of ECC.</t>
-      <t> The table below summarizes the new key exchange algorithms, which mimic DHE_DSS, DHE_RSA, and DH_anon, 
-        respectively.</t>
+      <t> <xref target="tbl2"/> summarizes the new key exchange algorithms.  All of these key exchange algorithms
+        provide forward secrecy.</t>
       <texttable anchor="tbl2" title="ECC Key Exchange Algorithms">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Description</ttcol>
         <c>ECDHE_ECDSA</c><c>Ephemeral ECDH with ECDSA signatures.</c>
         <c>ECDHE_RSA</c><c>Ephemeral ECDH with RSA signatures.</c>
-        <c>ECDH_anon</c><c>Anonymous ECDH, no signatures.</c>
+        <c>ECDH_anon</c><c>Anonymous ephemeral ECDH, no signatures.</c>
       </texttable>
-      <t> The ECDHE_ECDSA and ECDHE_RSA key exchange mechanisms provide forward secrecy.  With ECDHE_RSA, a server 
-        can reuse its existing RSA certificate and easily comply with a constrained client's elliptic curve p
-        references (see <xref target="tlsext"/>).  However, the computational cost incurred by a server is higher 
+      <t> These key exchanges are analogous to DHE_DSS, DHE_RSA, and DH_anon, respectively.</t>
+      <t> With ECDHE_RSA, a server 
+        can reuse its existing RSA certificate and easily comply with a constrained client's elliptic curve
+        preferences (see <xref target="tlsext"/>).  However, the computational cost incurred by a server is higher 
         for ECDHE_RSA than for the traditional RSA key exchange, which does not provide forward secrecy.</t>
       <t> The anonymous key exchange algorithm does not provide authentication of the server or the client.  Like 
         other anonymous TLS key exchanges, it is subject to man-in-the-middle attacks. Implementations of this 
