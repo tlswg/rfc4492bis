@@ -53,8 +53,8 @@
     <abstract>
       <t> This document describes key exchange algorithms based on Elliptic Curve Cryptography (ECC) for the Transport 
         Layer Security (TLS) protocol.  In particular, it specifies the use of Ephemeral Elliptic Curve Diffie-Hellman 
-        (ECDHE) key agreement in a TLS handshake and the use of Elliptic Curve Digital Signature Algorithm (ECDSA) as 
-        a new authentication mechanism.</t>
+        (ECDHE) key agreement in a TLS handshake and the use of Elliptic Curve Digital Signature Algorithm (ECDSA) and
+        Edwards Digital Signature Algorithm (EdDSA) as new authentication mechanisms.</t>
     </abstract>
   </front>
  <!-- 
@@ -62,6 +62,8 @@
   * Added mention of TLS 1.2
   * Removed "required reading" for ECC from the Introduction. ECC is not longer "exotic"
   * Moved the original authors to the Acknowledgement section.
+  * Added EdDSA.
+  * Added CFRG curves.
   -->
   <middle>
     <!-- ====================================================================== -->
@@ -119,7 +121,7 @@
       <texttable anchor="tbl2" title="ECC Key Exchange Algorithms">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Description</ttcol>
-        <c>ECDHE_ECDSA</c><c>Ephemeral ECDH with ECDSA signatures.</c>
+        <c>ECDHE_ECDSA</c><c>Ephemeral ECDH with ECDSA or EdDSA signatures.</c>
         <c>ECDHE_RSA</c><c>Ephemeral ECDH with RSA signatures.</c>
         <c>ECDH_anon</c><c>Anonymous ephemeral ECDH, no signatures.</c>
       </texttable>
@@ -134,7 +136,7 @@
       <t> Note that there is no structural difference between ECDH and ECDSA keys.  A certificate issuer may use 
         X.509 v3 keyUsage and extendedKeyUsage extensions to restrict the use of an ECC public key to certain 
         computations.  This document refers to an ECC key as ECDH-capable if its use in ECDH is permitted.  
-        ECDSA-capable is defined similarly. <figure>
+        ECDSA-capable and EdDSA-cabable are defined similarly. <figure>
         <artwork><![CDATA[
        Client                                        Server
        ------                                        ------
@@ -166,11 +168,10 @@
         <xref target="clientauth" /> and of the optional ECC-specific extensions (which impact the Hello messages) 
         until <xref target="tlsext" />.</t>
       <section anchor="ecdhe_ecdsa" title="ECDHE_ECDSA">
-        <t> In ECDHE_ECDSA, the server's certificate MUST contain an ECDSA-capable public key and be signed with 
-          ECDSA.</t>
+        <t> In ECDHE_ECDSA, the server's certificate MUST contain an ECDSA- or EdDSA-capable public key.</t>
         <t> The server sends its ephemeral ECDH public key and a specification of the corresponding curve in the 
-          ServerKeyExchange message.  These parameters MUST be signed with ECDSA using the private key corresponding 
-          to the public key in the server's Certificate.</t>
+          ServerKeyExchange message.  These parameters MUST be signed with ECDSA or EdDSA using the private key
+          corresponding to the public key in the server's Certificate.</t>
         <t> The client generates an ECDH key pair on the same curve as the server's ephemeral ECDH key and sends its 
           public key in the ClientKeyExchange message.</t>
         <t> Both client and server perform an ECDH operation <xref target="alg_computes"/> and use the resultant 
@@ -179,7 +180,7 @@
       <section anchor="ecdhe_rsa" title="ECDHE_RSA">
         <t> This key exchange algorithm is the same as ECDHE_ECDSA except that the server's certificate MUST contain 
           an RSA public key authorized for signing, and that the signature in the ServerKeyExchange message must be 
-          computed with the corresponding RSA private key.  The server certificate MUST be signed with RSA.</t>
+          computed with the corresponding RSA private key.</t>
       </section>
       <section anchor="ecdh_anon" title="ECDH_anon">
         <t> NOTE: Despite the name beginning with "ECDH_" (no E), the key used in ECDH_anon is ephemeral just like 
@@ -193,14 +194,9 @@
           its public key in the ClientKeyExchange message.</t>
         <t> Both client and server perform an ECDH operation and use the resultant shared secret as the premaster 
           secret.  All ECDH calculations are performed as specified in <xref target="alg_computes"/>.</t>
-        <t> Note that while the ECDHE_ECDSA and ECDHE_RSA key exchange algorithms require the server's certificate 
-          to be signed with a particular signature scheme, this specification (following the similar cases of 
-          DHE_DSS, and DHE_RSA in the TLS base documents) does not impose restrictions on signature schemes used 
-          elsewhere in the certificate chain.  (Often such restrictions will be useful, and it is expected that this 
-          will be taken into account in certification authorities' signing practices.  However, such restrictions are 
-          not strictly required in general: Even if it is beyond the capabilities of a client to completely validate 
-          a given chain, the client may be able to validate the server's certificate by relying on a trusted 
-          certification authority whose certificate appears as one of the intermediate certificates in the chain.)</t>
+        <t> This specification does not impose restrictions on signature schemes used anywhere in the certificate chain.
+          The previous version of this document required the signatures to match, but this restriction, originating
+          in previous TLS versions is lifted here as it had been in RFC 5246.</t>
       </section>
     </section>
     <section anchor="clientauth" title="Client Authentication">
@@ -223,8 +219,8 @@
       <t> NOTE: It is permissible for a server to request (and the client to send) a client certificate of a 
         different type than the server certificate.</t>
       <section anchor="ecdsa_sign" title="ECDSA_sign">
-        <t> To use this authentication mechanism, the client MUST possess a certificate containing an ECDSA-capable 
-          public key and signed with ECDSA.</t>
+        <t> To use this authentication mechanism, the client MUST possess a certificate containing an ECDSA-
+          or EdDSA-capable public key.</t>
         <t> The client proves possession of the private key corresponding to the certified key by including a 
           signature in the CertificateVerify message as described in <xref target="cert_verify"/>.</t>
       </section>
@@ -291,9 +287,9 @@
           cipher suites must be negotiated only if the server can successfully complete the handshake while using 
           the curves and point formats supported by the client (cf. <xref target="server_cert"/> and 
           <xref target="ske"/>).</t>
-        <t> NOTE: A server participating in an ECDHE-ECDSA key exchange may use different curves for the ECDSA 
-          key in its certificate, and for the ephemeral ECDH key in the ServerKeyExchange message.  The server MUST 
-          consider the extensions in both cases.</t>
+        <t> NOTE: A server participating in an ECDHE_ECDSA key exchange may use different curves for the ECDSA or
+          EdDSA key in its certificate, and for the ephemeral ECDH key in the ServerKeyExchange message.  The server
+          MUST consider the extensions in both cases.</t>
         <t> If a server does not understand the Supported Elliptic Curves Extension, does not understand the 
           Supported Point Formats Extension, or is unable to complete the ECC handshake while restricting itself 
           to the enumerated curves and point formats, it MUST NOT negotiate the use of an ECC cipher suite.  
@@ -303,13 +299,15 @@
           <t> RFC 4492 defined 25 different curves in the NamedCurve registry for use in TLS. Only three have seen 
             any use. This specification is deprecating the rest (with numbers 1-22). This specification also 
             deprecates the explicit curves with identifiers 0xFF01 and 0xFF02. It also adds the new curves 
-            defined in <xref target="CFRG-Curves"/>. The end result is as follows:</t>
+            defined in <xref target="CFRG-Curves"/> and <xref target="CFRG-EdDSA"/>. The end result is as follows:</t>
           <figure><artwork><![CDATA[
         enum {
             deprecated(1..22),
             secp256r1 (23), secp384r1 (24), secp521r1 (25),
             Curve25519(TBD1),
             Curve448(TBD2),
+            Ed25519(TBD3),
+            Ed448(TBD4),
             reserved (0xFE00..0xFEFF),
             deprecated(0xFF01..0xFF02),
             (0xFFFF)
@@ -320,7 +318,8 @@
             curves.  The named curves secp256r1, secp384r1, and secp521r1 are specified in SEC 2 
             <xref target="SECG-SEC2"/>. These curves are also recommended in ANSI X9.62 
             <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. Curve25519 and Curve448 
-            are defined in <xref target="CFRG-Curves"/>. Values 0xFE00 through 0xFEFF are reserved for private use.</t>
+            are defined in <xref target="CFRG-Curves"/>. Ed25519 and Ed448 are signature-only curves defined in
+            <xref target="CFRG-EdDSA"/>. Values 0xFE00 through 0xFEFF are reserved for private use.</t>
           <t> The NamedCurve name space is maintained by IANA.  See <xref target="iana"/> for information on how new 
             value assignments are added.</t>
           <figure><artwork><![CDATA[
@@ -349,7 +348,7 @@
 ]]></artwork></figure>
           <t> Three point formats were included in the definition of ECPointFormat above. This specification 
             deprecates all but the uncompressed point format. Implementations of this document MUST support the 
-            uncompressed format for all of their supported curves, and MUST support no other formats for curves
+            uncompressed format for all of their supported curves, and MUST NOT support other formats for curves
             defined in this specification. For backwards compatibility purposes, the point format list extension
             MUST still be included, and contain exactly one value: the uncomptessed point format (0).</t>
           <t> The ECPointFormat name space is maintained by IANA.  See <xref target="iana"/> for information on how 
@@ -400,9 +399,8 @@
         <texttable anchor="tbl3" title="Server Certificate Types">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Server Certificate Type</ttcol>
-        <c>ECDHE_ECDSA</c><c>Certificate MUST contain an ECDSA-capable public key.  It MUST be signed with ECDSA.</c>
-        <c>ECDHE_RSA</c><c>Certificate MUST contain an RSA public key authorized for use in digital signatures.  
-          It MUST be signed with RSA.</c>
+        <c>ECDHE_ECDSA</c><c>Certificate MUST contain an ECDSA- or EdDSA-capable public key.</c>
+        <c>ECDHE_RSA</c><c>Certificate MUST contain an RSA public key authorized for use in digital signatures.</c>
       </texttable>
       <t> Structure of this message:</t>
       <t> Identical to the TLS Certificate format.</t>
@@ -449,7 +447,8 @@
             represent an elliptic curve point in uncompressed or compressed format; it MUST conform to what the 
             client has requested through a Supported Point Formats Extension if this extension was used. For the
             Curve25519 and Curve448 curves, the only valid representation is the one specified in 
-            <xref target="CFRG-Curves"/> - a 32- or 56-octet representation of the u value of the point.</t>
+            <xref target="CFRG-Curves"/> - a 32- or 56-octet representation of the u value of the point. This structure
+            MUST NOT be used with Ed25519 and Ed448 public keys.</t>
           <t> <figure><artwork><![CDATA[
         struct {
             ECCurveType    curve_type;
@@ -462,9 +461,9 @@
           <t hangText="curve_type:"> This identifies the type of the elliptic curve domain parameters.</t>
           <t hangText="namedcurve:"> Specifies a recommended set of elliptic curve domain parameters.  All those 
             values of NamedCurve are allowed that refer to a specific curve.  Values of NamedCurve that indicate 
-            support for a class of explicitly defined curves are not allowed here (they are only permissible in 
-            the ClientHello extension); this applies to arbitrary_explicit_prime_curves(0xFF01) and 
-            arbitrary_explicit_char2_curves(0xFF02).</t>
+            support for a class of explicitly defined curves or signature-only curves are not allowed here (they are
+            only permissible in the ClientHello extension); this applies to Ed25519(TBD3), Ed448(TBD4),
+            arbitrary_explicit_prime_curves(0xFF01) and arbitrary_explicit_char2_curves(0xFF02).</t>
           <t><figure><artwork><![CDATA[
         struct {
             ECParameters    curve_params;
@@ -488,20 +487,27 @@
           <t hangText="signed_params:"> A hash of the params, with the signature appropriate to that hash applied.  
             The private key corresponding to the certified public key in the server's Certificate message is used 
             for signing.<figure><artwork><![CDATA[
-     enum { ecdsa } SignatureAlgorithm;
+     enum { ecdsa(3), eddsa(TBD5) } SignatureAlgorithm;
      select (SignatureAlgorithm) {
         case ecdsa:
              digitally-signed struct {
                  opaque sha_hash[sha_size];
              };
+        case eddsa:
+             digitally-signed struct {
+                 opaque rawdata[rawdata_size];
+             };
      } Signature;
    ServerKeyExchange.signed_params.sha_hash
        SHA(ClientHello.random + ServerHello.random +
                               ServerKeyExchange.params);
+   ServerKeyExchange.signed_params.rawdata
+       ClientHello.random + ServerHello.random +
+                              ServerKeyExchange.params;
 ]]></artwork></figure></t></list></t>
         <t> NOTE: SignatureAlgorithm is "rsa" for the ECDHE_RSA key exchange algorithm and "anonymous" for ECDH_anon.  
-          These cases are defined in TLS.  SignatureAlgorithm is "ecdsa" for ECDHE_ECDSA.  ECDSA signatures are 
-          generated and verified as described in <xref target="alg_computes"/>, and SHA in the above template for 
+          These cases are defined in TLS.  SignatureAlgorithm is "ecdsa" or "eddsa" for ECDHE_ECDSA.  ECDSA signatures
+          are generated and verified as described in <xref target="alg_computes"/>, and SHA in the above template for 
           sha_hash accordingly may denote a hash algorithm other than SHA-1.  As per ANSI X9.62, an ECDSA signature 
           consists of a pair of integers, r and s.  The digitally-signed element is encoded as an opaque vector 
           &lt;0..2^16-1&gt;, the contents of which are the DER encoding corresponding to the following ASN.1 
@@ -511,6 +517,9 @@
                s       INTEGER
            }
 ]]></artwork></figure></t>
+        <t>EdDSA signatures are generated and verified according to <xref target="CFRG-EdDSA"/>. The digitally-signed
+          element is encoded as an opaque vector&lt;0..2^16-1&gt;, the contents of which is the octet string output of
+          the EdDSA signing algorithm.</t>
         <t> Actions of the sender:</t>
         <t> The server selects elliptic curve domain parameters and an ephemeral ECDH public key corresponding to 
           these parameters according to the ECKAS-DH1 scheme from IEEE 1363 <xref target="IEEE.P1363.1998"/>.  
@@ -558,14 +567,14 @@
           certificates as described in <xref target="eccerts"/>.</t>
         <t> NOTE: The client's Certificate message is capable of carrying a chain of certificates.  The 
           restrictions mentioned in Table 4 apply only to the client's certificate (first in the chain).</t>
-    	<texttable anchor="tbl4" title="Client Certificate Types">
+        <texttable anchor="tbl4" title="Client Certificate Types">
           <ttcol align="left">Client Authentication Method</ttcol>
           <ttcol align="left">Client Certificate Type</ttcol>
-          <c>ECDSA_sign</c><c>Certificate MUST contain an ECDSA-capable public key and be signed with ECDSA.</c>
+          <c>ECDSA_sign</c><c>Certificate MUST contain an ECDSA- or EdDSA-capable public key.</c>
           <c>ECDSA_fixed_ECDH</c><c>Certificate MUST contain an ECDH-capable public key on the same elliptic curve 
-            as the server's long-term ECDH key.  This certificate MUST be signed with ECDSA.</c>
-          <c>RSA_fixed_ECDH</c><c>Certificate MUST contain an ECDH-capable public key on the same elliptic curve 
-            as the server's long-term ECDH key.  This certificate MUST be signed with RSA.</c>
+            as the server's long-term ECDH key.</c>
+          <c>RSA_fixed_ECDH</c><c>The same as ECDSA_fixed_ECDH. The codepoints meant different things, but due to
+            changes in TLS 1.2, both mean the same thing now.</c>
       </texttable>
       <t> Structure of this message:</t>
       <t> Identical to the TLS client Certificate format.</t>
@@ -599,9 +608,10 @@
         } ClientECDiffieHellmanPublic;
 ]]></artwork></figure></t>
           <t hangText="ecdh_Yc:"> Contains the client's ephemeral ECDH public key as a byte string ECPoint.point, 
-            which may represent an elliptic curve point in uncompressed or compressed format.  Here, the format 
-            MUST conform to what the server has requested through a Supported Point Formats Extension if this 
-            extension was used, and MUST be uncompressed if this extension was not used.<figure><artwork><![CDATA[
+            which may represent an elliptic curve point in uncompressed or compressed format. Curves Ed25519 and
+            Ed448 MUST NOT be used. Here, the format MUST conform to what the server has requested through a Supported
+            Point Formats Extension if this extension was used, and MUST be uncompressed if this extension was not
+            used.<figure><artwork><![CDATA[
         struct {
             select (KeyExchangeAlgorithm) {
                 case ec_diffie_hellman: ClientECDiffieHellmanPublic;
@@ -625,11 +635,14 @@
           key in the client's Certificate message.</t>
         <t> Structure of this message:</t>
         <t> The TLS CertificateVerify message and the underlying Signature type are defined in the TLS base 
-          specifications, and the latter is extended here in <xref target="ske"/>.  For the ecdsa case, the signature 
-          field in the CertificateVerify message contains an ECDSA signature computed over handshake messages 
-          exchanged so far, exactly similar to CertificateVerify with other signing algorithms:<figure><artwork><![CDATA[
+          specifications, and the latter is extended here in <xref target="ske"/>.  For the ecdsa and eddsa cases, the
+          signature field in the CertificateVerify message contains an ECDSA or EdDSA (respectively) signature computed
+          over handshake messages exchanged so far, exactly similar to CertificateVerify with other signing
+          algorithms:<figure><artwork><![CDATA[
         CertificateVerify.signature.sha_hash
             SHA(handshake_messages);
+        CertificateVerify.signature.rawdata
+            handshake_messages;
 ]]></artwork></figure></t>
         <t> ECDSA signatures are computed as described in <xref target="alg_computes"/>, and SHA in the above 
           template for sha_hash accordingly may denote a hash algorithm other than SHA-1.  As per ANSI X9.62, an 
@@ -641,6 +654,9 @@
             s       INTEGER
         }
 ]]></artwork></figure></t>
+        <t>EdDSA signatures are generated and verified according to <xref target="CFRG-EdDSA"/>. The digitally-signed
+          element is encoded as an opaque vector&lt;0..2^16-1&gt;, the contents of which is the octet string output of
+          the EdDSA signing algorithm.</t>
         <t> Actions of the sender:</t>
         <t> The client computes its signature over all handshake messages sent or received starting at client hello 
           and up to but not including this message.  It uses the private key corresponding to its certified public 
@@ -651,8 +667,12 @@
       </section>
       <section anchor="eccerts" title="Elliptic Curve Certificates">
         <t> X.509 certificates containing ECC public keys or signed using ECDSA MUST comply with 
-          <xref target="RFC3279"/> or another RFC that replaces or extends it. Clients SHOULD use the elliptic 
-          curve domain parameters recommended in ANSI X9.62, FIPS 186-4, and SEC 2 <xref target="SECG-SEC2"/>.</t>
+          <xref target="RFC3279"/> or another RFC that replaces or extends it. X.509 certificates containing ECC
+          public keys or signed using EdDSA MUST comply with <xref target="PKIX-EdDSA"/>. Clients SHOULD use the
+          elliptic curve domain parameters recommended in ANSI X9.62, FIPS 186-4, and SEC 2
+          <xref target="SECG-SEC2"/> or in <xref target="CFRG-EdDSA"/>.</t>
+        <t>EdDSA keys using Ed25519 and Ed25519ph algorithms MUST use the Ed25519 curve, and Ed448 and Ed448ph keys
+          MUST use the Ed448 curve. Curves Curve25519, Curve448, Ed25519 and Ed448 MUST NOT be used for ECDSA.</t>
       </section>
       <section anchor="alg_computes" title="ECDH, ECDSA, and RSA Computations">
         <t> All ECDH calculations for the NIST curves (including parameter and key generation as well as the shared 
@@ -675,11 +695,15 @@
           signed/verified is hashed, and the result run directly through the ECDSA algorithm with no additional 
           hashing.  The default hash function is SHA-1 <xref target="FIPS.180-2"/>, and sha_size (see 
           <xref target="ske"/> and <xref target="cert_verify"/>) is 20. However, an alternative hash function, such 
-          as one of the new SHA hash functions specified in FIPS 180-2 <xref target="FIPS.180-2"/>, may be used instead.</t>
+          as one of the new SHA hash functions specified in FIPS 180-2 <xref target="FIPS.180-2"/>, SHOULD be used instead.</t>
+        <t> All EdDSA computations MUST be performed according to <xref target="CFRG-EdDSA"/> or its succesors. Data
+          to be signed/verified is run through the EdDSA algorithm wih no hashing (EdDSA will internally run the data
+          through the PH function).</t>
         <t> RFC 4492 anticipated the standardization of a mechanism for specifying the required hash function in the certificate,
         perhaps in the parameters field of the subjectPublicKeyInfo. Such standardization never took place, and as a result, 
-        SHA-1 is used in TLS 1.1 and earlier. TLS 1.2 added a SignatureAndHashAlgorithm parameter to the DigitallySigned struct, 
-        thus allowing agility in choosing the signature hash.</t>
+        SHA-1 is used in TLS 1.1 and earlier (except for EdDSA, which uses identity function). TLS 1.2 added a
+        SignatureAndHashAlgorithm parameter to the DigitallySigned struct, thus allowing agility in choosing the
+        signature hash. EdDSA signatures MUST have HashAlgorithm of 0 (None).</t>
         <t> All RSA signatures must be generated and verified according to <xref target="PKCS1"/> block type 1.</t>
       </section>
       <section anchor="valid25519" title="Public Key Validation">
@@ -688,14 +712,16 @@
           key, to the point that they may recover the entire private key in a few requests, if that key is not really
           ephemeral.</t>
         <t> Curve25519 was designed in a way that the result of Curve25519(x, d) will never reveal information about 
-          d, provided it was chosen as prescribed, for any value of x.</t>
+          d, provided it was chosen as prescribed, for any value of x (the same holds true for Curve448).</t>
         <t> Let's define legitimate values of x as the values that can be obtained as x = Curve25519(G, d') for some 
           d, and call the other values illegitimate.  The definition of the Curve25519 function shows that legitimate 
-          values all share the following property: the high-order bit of the last byte is not set.</t>
+          values all share the following property: the high-order bit of the last byte is not set (for Ed448, any bit
+          can be set).</t>
         <t> Since there are some implementation of the Curve25519 function that impose this restriction on their input 
           and others that don't, implementations of Curve25519 in TLS SHOULD reject public keys when the high-order bit 
           of the last byte is set (in other words, when the value of the leftmost byte is greater than 0x7F) in order 
           to prevent implementation fingerprinting.</t>
+        <t>Ed25519 and Ed448 internally do public key validation as part of signature verification.</t>
         <t> Other than this recommended check, implementations do not need to ensure that the public keys they receive 
           are legitimate: this is not necessary for security with Curve25519.</t>
       </section>
@@ -770,8 +796,10 @@
       <t> NOTE: IANA, please update the registries to reflect the new policy name.</t>
       <t> NOTE: RFC editor please delete these two notes prior to publication.</t>
       <t> IANA, please update these two registries to refer to this document.</t>
-      <t> IANA is requested to assign two values from the NamedCurve registry with names Curve25519(TBD1) and
-        Curve448(TBD2) with this document as reference.</t>
+      <t> IANA is requested to assign four values from the NamedCurve registry with names Curve25519(TBD1),
+        Curve448(TBD2), Ed25519(TBD3) and Ed448(TBD4) with this document as reference.</t>
+      <t> IANA is requested to assign one value from SignatureAlgorithm Registry with name eddsa(TBD5) with this
+        document as reference.</t>
     </section>
     <section anchor="ack" title="Acknowledgements">
       <t> Most of the text is this document is taken from <xref target="RFC4492"/>, the predecessor of this 
@@ -785,6 +813,9 @@
     </section>
     <section anchor="history" title="Version History for This Draft">
       <t> NOTE TO RFC EDITOR: PLEASE REMOVE THIS SECTION</t>
+      <t> Changes from draft-ietf-tls-rfc4492bis-03 to draft-nir-tls-rfc4492bis-05:<list style="symbols">
+        <t> Add support for CFRG curves and signatures work.</t>
+        </list></t>
       <t> Changes from draft-ietf-tls-rfc4492bis-01 to draft-nir-tls-rfc4492bis-03:<list style="symbols">
         <t> Removed unused curves.</t>
         <t> Removed unused point formats (all but uncompressed)</t>
@@ -815,6 +846,26 @@
           </front>
         <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-curves-11"/>
         <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-curves-11.txt"/>
+      </reference>
+      <reference anchor="CFRG-EdDSA">
+        <front>
+          <title>Edwards-curve Digital Signature Algorithm (EdDSA)</title>
+            <author initials="S" surname="Josefsson" fullname="Simon Josefsson"></author>
+            <author initials="I" surname="Liusvaara" fullname="Ilari Liusvaara"></author>
+            <date month="October" day="8" year="2015"/>
+          </front>
+        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-eddsa-00"/>
+        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-eddsa-00.txt"/>
+      </reference>
+      <reference anchor="PKIX-EdDSA">
+        <front>
+          <title>Using EdDSA in the Internet X.509 Public Key Infrastructure</title>
+            <author initials="S" surname="Josefsson" fullname="Simon Josefsson"></author>
+            <author initials="N" surname="Mavrogiannopoulos" fullname="Nikos Mavrogiannopoulos"></author>
+            <date month="September" day="23" year="2015"/>
+          </front>
+        <seriesInfo name="Internet-Draft" value="draft-josefsson-pkix-eddsa-03"/>
+        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-josefsson-pkix-eddsa-03"/>
       </reference>
       <reference anchor='RFC2246'>
         <front>
