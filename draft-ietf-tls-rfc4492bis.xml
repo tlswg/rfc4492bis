@@ -2,7 +2,7 @@
 <?xml-stylesheet type='text/xsl' href='./rfc2629.xslt' ?>
 
 <?rfc compact="yes" ?>
-<?rfc sortrefs="yes" ?>
+<?rfc sortrefs="syes" ?>
 <?rfc strict="yes" ?>
 <?rfc linkmailto="yes" ?>
 <?rfc toc="yes"?>
@@ -179,7 +179,7 @@
       <section anchor="ecdhe_rsa" title="ECDHE_RSA">
         <t> This key exchange algorithm is the same as ECDHE_ECDSA except that the server's certificate MUST contain 
           an RSA public key authorized for signing, and that the signature in the ServerKeyExchange message must be 
-          computed with the corresponding RSA private key.  The server certificate MUST be signed with RSA.</t>
+          computed with the corresponding RSA private key.</t>
       </section>
       <section anchor="ecdh_anon" title="ECDH_anon">
         <t> NOTE: Despite the name beginning with "ECDH_" (no E), the key used in ECDH_anon is ephemeral just like 
@@ -193,14 +193,9 @@
           its public key in the ClientKeyExchange message.</t>
         <t> Both client and server perform an ECDH operation and use the resultant shared secret as the premaster 
           secret.  All ECDH calculations are performed as specified in <xref target="alg_computes"/>.</t>
-        <t> Note that while the ECDHE_ECDSA and ECDHE_RSA key exchange algorithms require the server's certificate 
-          to be signed with a particular signature scheme, this specification (following the similar cases of 
-          DHE_DSS, and DHE_RSA in the TLS base documents) does not impose restrictions on signature schemes used 
-          elsewhere in the certificate chain.  (Often such restrictions will be useful, and it is expected that this 
-          will be taken into account in certification authorities' signing practices.  However, such restrictions are 
-          not strictly required in general: Even if it is beyond the capabilities of a client to completely validate 
-          a given chain, the client may be able to validate the server's certificate by relying on a trusted 
-          certification authority whose certificate appears as one of the intermediate certificates in the chain.)</t>
+        <t> This specification does not impose restrictions on signature schemes used anywhere in the certificate chain.  
+          The previous version of this document required the signatures to match, but this restriction, originating
+          in previous TLS versions is lifted here as it had been in RFC 5246.</t>
       </section>
     </section>
     <section anchor="clientauth" title="Client Authentication">
@@ -224,7 +219,7 @@
         different type than the server certificate.</t>
       <section anchor="ecdsa_sign" title="ECDSA_sign">
         <t> To use this authentication mechanism, the client MUST possess a certificate containing an ECDSA-capable 
-          public key and signed with ECDSA.</t>
+          public key.</t>
         <t> The client proves possession of the private key corresponding to the certified key by including a 
           signature in the CertificateVerify message as described in <xref target="cert_verify"/>.</t>
       </section>
@@ -400,9 +395,8 @@
         <texttable anchor="tbl3" title="Server Certificate Types">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Server Certificate Type</ttcol>
-        <c>ECDHE_ECDSA</c><c>Certificate MUST contain an ECDSA-capable public key.  It MUST be signed with ECDSA.</c>
-        <c>ECDHE_RSA</c><c>Certificate MUST contain an RSA public key authorized for use in digital signatures.  
-          It MUST be signed with RSA.</c>
+        <c>ECDHE_ECDSA</c><c>Certificate MUST contain an ECDSA-capable public key.</c>
+        <c>ECDHE_RSA</c><c>Certificate MUST contain an RSA public key authorized for use in digital signatures.</c>
       </texttable>
       <t> Structure of this message:</t>
       <t> Identical to the TLS Certificate format.</t>
@@ -561,11 +555,11 @@
     	<texttable anchor="tbl4" title="Client Certificate Types">
           <ttcol align="left">Client Authentication Method</ttcol>
           <ttcol align="left">Client Certificate Type</ttcol>
-          <c>ECDSA_sign</c><c>Certificate MUST contain an ECDSA-capable public key and be signed with ECDSA.</c>
+          <c>ECDSA_sign</c><c>Certificate MUST contain an ECDSA-capable public key.</c>
           <c>ECDSA_fixed_ECDH</c><c>Certificate MUST contain an ECDH-capable public key on the same elliptic curve 
-            as the server's long-term ECDH key.  This certificate MUST be signed with ECDSA.</c>
+            as the server's long-term ECDH key.</c>
           <c>RSA_fixed_ECDH</c><c>Certificate MUST contain an ECDH-capable public key on the same elliptic curve 
-            as the server's long-term ECDH key.  This certificate MUST be signed with RSA.</c>
+            as the server's long-term ECDH key.</c>
       </texttable>
       <t> Structure of this message:</t>
       <t> Identical to the TLS client Certificate format.</t>
