@@ -1066,6 +1066,7 @@
         <t> Removed unused curves and all but the uncompressed point format.</t>
         <t> Added Curve25519 and Curve448.</t>
         <t> Deprecated explicit curves.</t>
+        <t> Removed restriction on signature algorithm in certificate.</t>
     </section>
   </back>
 </rfc>
