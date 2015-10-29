@@ -765,9 +765,9 @@
         <t> ECPointFormat <xref target="ch_extensions"/></t>
         <t> ECCurveType <xref target="ske"/></t></list></t>
       <t> For each name space, this document defines the initial value assignments and defines a range of 256 values 
-        (NamedCurve) or eight values (ECPointFormat and ECCurveType) reserved for Private Use.  Any additional 
-        assignments require IETF Review.</t>
-      <t> NOTE: IANA, please update the registries to reflect the new policy name.</t>
+        (NamedCurve) or eight values (ECPointFormat and ECCurveType) reserved for Private Use.  The policy for any additional 
+        assignments is "Specification Required". The previous version of this document required IETF review.</t>
+      <t> NOTE: IANA, please update the registries to reflect the new policy.</t>
       <t> NOTE: RFC editor please delete these two notes prior to publication.</t>
       <t> IANA, please update these two registries to refer to this document.</t>
       <t> IANA is requested to assign two values from the NamedCurve registry with names Curve25519(TBD1) and
