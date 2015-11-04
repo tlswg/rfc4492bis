@@ -700,19 +700,16 @@
           <ttcol align="left">CipherSuite</ttcol>
           <ttcol align="left">Identifier</ttcol>
           <c>TLS_ECDHE_ECDSA_WITH_NULL_SHA</c><c>{ 0xC0, 0x06 }</c>
-          <c>TLS_ECDHE_ECDSA_WITH_RC4_128_SHA</c><c>{ 0xC0, 0x07 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x08 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x09 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x0A }</c>
                     <c> </c><c> </c>
           <c>TLS_ECDHE_RSA_WITH_NULL_SHA</c><c>{ 0xC0, 0x10 }</c>
-          <c>TLS_ECDHE_RSA_WITH_RC4_128_SHA</c><c>{ 0xC0, 0x11 }</c>
           <c>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x12 }</c>
           <c>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x13 }</c>
           <c>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x14 }</c>
                     <c> </c><c> </c>
           <c>TLS_ECDH_anon_WITH_NULL_SHA</c><c>{ 0xC0, 0x15 }</c>
-          <c>TLS_ECDH_anon_WITH_RC4_128_SHA</c><c>{ 0xC0, 0x16 }</c>
           <c>TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x17 }</c>
           <c>TLS_ECDH_anon_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x18 }</c>
           <c>TLS_ECDH_anon_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x19 }</c>
@@ -1061,7 +1058,8 @@
           <t>TLS_ECDH_RSA_WITH_RC4_128_SHA</t>
           <t>TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA</t>
           <t>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA</t>
-          <t>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</t></list></t>
+          <t>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</t>
+          <t>All the other RC4 ciphersuites</t></list></t>
       </list></t>
         <t> Removed unused curves and all but the uncompressed point format.</t>
         <t> Added Curve25519 and Curve448.</t>
