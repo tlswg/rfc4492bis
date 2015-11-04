@@ -350,7 +350,7 @@
             deprecates all but the uncompressed point format. Implementations of this document MUST support the 
             uncompressed format for all of their supported curves, and MUST NOT support other formats for curves
             defined in this specification. For backwards compatibility purposes, the point format list extension
-            MUST still be included, and contain exactly one value: the uncomptessed point format (0).</t>
+            MUST still be included, and contain exactly one value: the uncompressed point format (0).</t>
           <t> The ECPointFormat name space is maintained by IANA.  See <xref target="iana"/> for information on how 
             new value assignments are added.</t>
           <t> Items in ec_point_format_list are ordered according to the client's preferences (favorite choice first).</t>
