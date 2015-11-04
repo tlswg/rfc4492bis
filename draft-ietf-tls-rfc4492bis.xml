@@ -460,10 +460,9 @@
 ]]></artwork></figure></t>
           <t hangText="curve_type:"> This identifies the type of the elliptic curve domain parameters.</t>
           <t hangText="namedcurve:"> Specifies a recommended set of elliptic curve domain parameters.  All those 
-            values of NamedCurve are allowed that refer to a specific curve.  Values of NamedCurve that indicate 
-            support for a class of explicitly defined curves or signature-only curves are not allowed here (they are
-            only permissible in the ClientHello extension); this applies to Ed25519(TBD3), Ed448(TBD4),
-            arbitrary_explicit_prime_curves(0xFF01) and arbitrary_explicit_char2_curves(0xFF02).</t>
+            values of NamedCurve are allowed that refer to a curve capable of Diffie-Hellman.  With the deprecation 
+            of the explicit curves, this now includes all values of NamedCurve except Ed25519(TBD3) and 
+            Ed448(TBD4).</t>
           <t><figure><artwork><![CDATA[
         struct {
             ECParameters    curve_params;
