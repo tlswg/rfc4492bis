@@ -304,10 +304,8 @@
         enum {
             deprecated(1..22),
             secp256r1 (23), secp384r1 (24), secp521r1 (25),
-            Curve25519(TBD1),
-            Curve448(TBD2),
-            Ed25519(TBD3),
-            Ed448(TBD4),
+            ecdh_x25519(TBD1), ecdh_x448(TBD2),
+            eddsa_ed25519(TBD3), eddsa_ed448(TBD4),
             reserved (0xFE00..0xFEFF),
             deprecated(0xFF01..0xFF02),
             (0xFFFF)
@@ -317,8 +315,8 @@
           <t> secp256r1, etc: Indicates support of the corresponding named curve or class of explicitly defined 
             curves.  The named curves secp256r1, secp384r1, and secp521r1 are specified in SEC 2 
             <xref target="SECG-SEC2"/>. These curves are also recommended in ANSI X9.62 
-            <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. Curve25519 and Curve448 
-            are defined in <xref target="CFRG-Curves"/>. Ed25519 and Ed448 are signature-only curves defined in
+            <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. ecdh_x25519 and ecdh_x448
+            are defined in <xref target="CFRG-Curves"/>. eddsa_ed25519 and eddsa_ed448 are signature-only curves defined in
             <xref target="CFRG-EdDSA"/>. Values 0xFE00 through 0xFEFF are reserved for private use.</t>
           <t> The NamedCurve name space is maintained by IANA.  See <xref target="iana"/> for information on how new 
             value assignments are added.</t>
@@ -446,7 +444,7 @@
             conversion routine in Section 4.3.6 of <xref target="ANSI.X9-62.2005"/>.  This byte string may 
             represent an elliptic curve point in uncompressed or compressed format; it MUST conform to what the 
             client has requested through a Supported Point Formats Extension if this extension was used. For the
-            Curve25519 and Curve448 curves, the only valid representation is the one specified in 
+            X25519 and X448 curves, the only valid representation is the one specified in
             <xref target="CFRG-Curves"/> - a 32- or 56-octet representation of the u value of the point. This structure
             MUST NOT be used with Ed25519 and Ed448 public keys.</t>
           <t> <figure><artwork><![CDATA[
@@ -461,8 +459,8 @@
           <t hangText="curve_type:"> This identifies the type of the elliptic curve domain parameters.</t>
           <t hangText="namedcurve:"> Specifies a recommended set of elliptic curve domain parameters.  All those 
             values of NamedCurve are allowed that refer to a curve capable of Diffie-Hellman.  With the deprecation 
-            of the explicit curves, this now includes all values of NamedCurve except Ed25519(TBD3) and 
-            Ed448(TBD4).</t>
+            of the explicit curves, this now includes all values of NamedCurve except eddsa_ed25519(TBD3) and 
+            eddsa_ed448(TBD4).</t>
           <t><figure><artwork><![CDATA[
         struct {
             ECParameters    curve_params;
@@ -607,8 +605,8 @@
         } ClientECDiffieHellmanPublic;
 ]]></artwork></figure></t>
           <t hangText="ecdh_Yc:"> Contains the client's ephemeral ECDH public key as a byte string ECPoint.point, 
-            which may represent an elliptic curve point in uncompressed or compressed format. Curves Ed25519 and
-            Ed448 MUST NOT be used. Here, the format MUST conform to what the server has requested through a Supported
+            which may represent an elliptic curve point in uncompressed or compressed format. Curves eddsa_ed25519 and
+            eddsa_ed448 MUST NOT be used here. Here, the format MUST conform to what the server has requested through a Supported
             Point Formats Extension if this extension was used, and MUST be uncompressed if this extension was not
             used.<figure><artwork><![CDATA[
         struct {
@@ -670,8 +668,9 @@
           public keys or signed using EdDSA MUST comply with <xref target="PKIX-EdDSA"/>. Clients SHOULD use the
           elliptic curve domain parameters recommended in ANSI X9.62, FIPS 186-4, and SEC 2
           <xref target="SECG-SEC2"/> or in <xref target="CFRG-EdDSA"/>.</t>
-        <t>EdDSA keys using Ed25519 and Ed25519ph algorithms MUST use the Ed25519 curve, and Ed448 and Ed448ph keys
-          MUST use the Ed448 curve. Curves Curve25519, Curve448, Ed25519 and Ed448 MUST NOT be used for ECDSA.</t>
+        <t>EdDSA keys using Ed25519 and Ed25519ph algorithms MUST use the eddsa_ed25519 curve, and Ed448 and Ed448ph
+          keys MUST use the eddsa_ed448 curve. Curves ecdh_x25519, ecdh_x448, eddsa_ed25519 and eddsa_ed448 MUST NOT be
+          used for ECDSA.</t>
       </section>
       <section anchor="alg_computes" title="ECDH, ECDSA, and RSA Computations">
         <t> All ECDH calculations for the NIST curves (including parameter and key generation as well as the shared 
@@ -685,11 +684,13 @@
           than for computing the master secret.  In TLS 1.0 and 1.1, this means that the MD5- and SHA-1-based TLS 
           PRF serves as a KDF; in TLS 1.2 the KDF is determined by ciphersuite; it is conceivable that future TLS 
           versions or new TLS extensions introduced in the future may vary this computation.)</t>
-        <t> An ECDHE key exchange using Curve25519 goes as follows. Each party picks a secret key d uniformly at 
-          random and computes the corresponding public key x = Curve25519(d, G). Parties exchange their public keys 
-          and compute a shared secret as x_S = Curve25519(d, x_peer).  ECDHE for Curve448 works similarily, replacing 
-          Curve25519 with Curve448.  The derived shared secret is used directly as the premaster secret, which is 
-          always exactly 32 bytes when ECDHE with Curve25519 is used and 56 bytes when ECDHE with Curve448 is used.</t>
+        <t> An ECDHE key exchange using X25519 (curve ecdh_x25519) goes as follows: Each party picks a secret key d
+          uniformly at random and computes the corresponding public key x = X25519(d, G). Parties exchange their
+          public keys, and compute a shared secret as x_S = X25519(d, x_peer). If either party obtains all-zeroes x_S,
+          it MUST abort the handshake (as required by definition of X25519 and X448). ECDHE for X448 works similarily,
+          replacing X25519 with X448, and ecdh_x25519 with ecdh_x448.  The derived shared secret is used directly as
+          the premaster secret, which is always exactly 32 bytes when ECDHE with X25519 is used and 56 bytes when
+          ECDHE with X448 is used.</t>
         <t> All ECDSA computations MUST be performed according to ANSI X9.62 or its successors.  Data to be 
           signed/verified is hashed, and the result run directly through the ECDSA algorithm with no additional 
           hashing.  The default hash function is SHA-1 <xref target="FIPS.180-2"/>, and sha_size (see 
@@ -710,19 +711,22 @@
           cryptographic computations with it.  Failing to do so allows attackers to gain information about the private 
           key, to the point that they may recover the entire private key in a few requests, if that key is not really
           ephemeral.</t>
-        <t> Curve25519 was designed in a way that the result of Curve25519(x, d) will never reveal information about 
-          d, provided it was chosen as prescribed, for any value of x (the same holds true for Curve448).</t>
-        <t> Let's define legitimate values of x as the values that can be obtained as x = Curve25519(G, d') for some 
-          d, and call the other values illegitimate.  The definition of the Curve25519 function shows that legitimate 
-          values all share the following property: the high-order bit of the last byte is not set (for Ed448, any bit
+        <t> X25519 was designed in a way that the result of X25519(x, d) will never reveal information about
+          d, provided it was chosen as prescribed, for any value of x (the same holds true for X448).</t>
+        <t> All-zeroes output from X25519 or X448 MUST NOT be used for premaster secret (as required by definition
+          of X25519 and X448). If the premaster secret would be all zeroes, the handshake MUST be aborted (most
+          probably by sending a fatal alert).</t>
+        <t> Let's define legitimate values of x as the values that can be obtained as x = X25519(G, d') for some
+          d', and call the other values illegitimate.  The definition of the X25519 function shows that legitimate
+          values all share the following property: the high-order bit of the last byte is not set (for X448, any bit
           can be set).</t>
-        <t> Since there are some implementation of the Curve25519 function that impose this restriction on their input 
-          and others that don't, implementations of Curve25519 in TLS SHOULD reject public keys when the high-order bit 
+        <t> Since there are some implementation of the X25519 function that impose this restriction on their input
+          and others that don't, implementations of X25519 in TLS SHOULD reject public keys when the high-order bit
           of the last byte is set (in other words, when the value of the leftmost byte is greater than 0x7F) in order 
           to prevent implementation fingerprinting.</t>
         <t>Ed25519 and Ed448 internally do public key validation as part of signature verification.</t>
         <t> Other than this recommended check, implementations do not need to ensure that the public keys they receive 
-          are legitimate: this is not necessary for security with Curve25519.</t>
+          are legitimate: this is not necessary for security with X25519.</t>
       </section>
     </section>
     <section anchor="suites" title="Cipher Suites">
@@ -792,8 +796,8 @@
       <t> NOTE: IANA, please update the registries to reflect the new policy name.</t>
       <t> NOTE: RFC editor please delete these two notes prior to publication.</t>
       <t> IANA, please update these two registries to refer to this document.</t>
-      <t> IANA is requested to assign four values from the NamedCurve registry with names Curve25519(TBD1),
-        Curve448(TBD2), Ed25519(TBD3) and Ed448(TBD4) with this document as reference.</t>
+      <t> IANA is requested to assign four values from the NamedCurve registry with names ecdh_x25519(TBD1),
+        ecdh_x448(TBD2), eddsa_ed25519(TBD3) and eddsa_ed448(TBD4) with this document as reference.</t>
       <t> IANA is requested to assign one value from SignatureAlgorithm Registry with name eddsa(TBD5) with this
         document as reference.</t>
     </section>
@@ -1118,7 +1122,7 @@
           <t>All the other RC4 ciphersuites</t></list></t>
       </list></t>
         <t> Removed unused curves and all but the uncompressed point format.</t>
-        <t> Added Curve25519 and Curve448.</t>
+        <t> Added X25519 and X448.</t>
         <t> Deprecated explicit curves.</t>
         <t> Removed restriction on signature algorithm in certificate.</t>
     </section>
