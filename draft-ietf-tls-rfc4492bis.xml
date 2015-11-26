@@ -296,8 +296,9 @@
           Depending on what other cipher suites are proposed by the client and supported by the server, this may 
           result in a fatal handshake failure alert due to the lack of common cipher suites.</t>
         <section anchor="supp_ec_ext" title="Supported Elliptic Curves Extension">
-          <t> RFC 4492 defined 25 different curves in the NamedCurve registry for use in TLS. Only three have seen 
-            any use. This specification is deprecating the rest (with numbers 1-22). This specification also 
+          <t> RFC 4492 defined 25 different curves in the NamedCurve registry (now renamed the "Supported Groups" registry,
+            although the enumeration below is still named NamedCurve) for use in TLS. Only three have seen 
+            much use. This specification is deprecating the rest (with numbers 1-22). This specification also 
             deprecates the explicit curves with identifiers 0xFF01 and 0xFF02. It also adds the new curves 
             defined in <xref target="CFRG-Curves"/> and <xref target="CFRG-EdDSA"/>. The end result is as follows:</t>
           <figure><artwork><![CDATA[
@@ -787,13 +788,13 @@
     <section anchor="iana" title="IANA Considerations">
       <t> <xref target="RFC4492" />, the predecessor of this document has already defined the IANA registries for 
         the following:<list style="symbols">
-        <t> NamedCurve <xref target="ch_extensions"/></t>
+        <t> Supported Groups <xref target="ch_extensions"/></t>
         <t> ECPointFormat <xref target="ch_extensions"/></t>
         <t> ECCurveType <xref target="ske"/></t></list></t>
       <t> For each name space, this document defines the initial value assignments and defines a range of 256 values 
-        (NamedCurve) or eight values (ECPointFormat and ECCurveType) reserved for Private Use.  Any additional 
-        assignments require IETF Review.</t>
-      <t> NOTE: IANA, please update the registries to reflect the new policy name.</t>
+        (NamedCurve) or eight values (ECPointFormat and ECCurveType) reserved for Private Use.  The policy for any additional 
+        assignments is "Specification Required". The previous version of this document required IETF review.</t>
+      <t> NOTE: IANA, please update the registries to reflect the new policy.</t>
       <t> NOTE: RFC editor please delete these two notes prior to publication.</t>
       <t> IANA, please update these two registries to refer to this document.</t>
       <t> IANA is requested to assign four values from the NamedCurve registry with names ecdh_x25519(TBD1),
