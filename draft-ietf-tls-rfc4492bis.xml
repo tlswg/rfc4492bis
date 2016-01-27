@@ -157,7 +157,7 @@
             * message is not sent under some conditions
             + message is not sent unless client authentication
               is desired
-]]></artwork><postamble>Figure 1: Message flow in a full TLS handshake</postamble>
+]]></artwork><postamble>Figure 1: Message flow in a full TLS 1.2 handshake</postamble>
         </figure></t>
       <t> Figure 1 shows all messages involved in the TLS key establishment protocol (aka full handshake).  The
         addition of ECC has direct impact only on the ClientHello, the ServerHello, the server's Certificate
