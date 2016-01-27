@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-05" category="std" obsoletes="4492">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-06" category="std" obsoletes="4492">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -46,7 +46,7 @@
       </address>
     </author>
 
-    <date year="2015"/>
+    <date year="2016"/>
     <area>Security Area</area>
     <workgroup>TLS Working Group</workgroup>
     <keyword>Internet-Draft</keyword>
@@ -300,7 +300,7 @@
             although the enumeration below is still named NamedCurve) for use in TLS. Only three have seen 
             much use. This specification is deprecating the rest (with numbers 1-22). This specification also 
             deprecates the explicit curves with identifiers 0xFF01 and 0xFF02. It also adds the new curves 
-            defined in <xref target="CFRG-Curves"/> and <xref target="CFRG-EdDSA"/>. The end result is as follows:</t>
+            defined in <xref target="RFC7748"/> and <xref target="CFRG-EdDSA"/>. The end result is as follows:</t>
           <figure><artwork><![CDATA[
         enum {
             deprecated(1..22),
@@ -317,7 +317,7 @@
             curves.  The named curves secp256r1, secp384r1, and secp521r1 are specified in SEC 2 
             <xref target="SECG-SEC2"/>. These curves are also recommended in ANSI X9.62 
             <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. ecdh_x25519 and ecdh_x448
-            are defined in <xref target="CFRG-Curves"/>. eddsa_ed25519 and eddsa_ed448 are signature-only curves defined in
+            are defined in <xref target="RFC7748"/>. eddsa_ed25519 and eddsa_ed448 are signature-only curves defined in
             <xref target="CFRG-EdDSA"/>. Values 0xFE00 through 0xFEFF are reserved for private use.</t>
           <t> The NamedCurve name space is maintained by IANA.  See <xref target="iana"/> for information on how new 
             value assignments are added.</t>
@@ -446,7 +446,7 @@
             represent an elliptic curve point in uncompressed or compressed format; it MUST conform to what the 
             client has requested through a Supported Point Formats Extension if this extension was used. For the
             X25519 and X448 curves, the only valid representation is the one specified in
-            <xref target="CFRG-Curves"/> - a 32- or 56-octet representation of the u value of the point. This structure
+            <xref target="RFC7748"/> - a 32- or 56-octet representation of the u value of the point. This structure
             MUST NOT be used with Ed25519 and Ed448 public keys.</t>
           <t> <figure><artwork><![CDATA[
         struct {
@@ -837,16 +837,16 @@
   <!-- ====================================================================== -->
   <back>
     <references title="Normative References">
-      <reference anchor="CFRG-Curves">
+      <reference anchor="RFC7748">
         <front>
           <title>Elliptic Curves for Security</title>
             <author initials="A" surname="Langley" fullname="Adam Langley"></author>
             <author initials="M" surname="Hamburg" fullname="Mike Hamburg"></author>
             <author initials="S" surname="Turner" fullname="Sean Turner"></author>
-            <date month="October" day="9" year="2015"/>
+            <date month="January" year="2016"/>
           </front>
-        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-curves-11"/>
-        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-curves-11.txt"/>
+        <seriesInfo name='RFC' value='7748' />
+        <format type='HTML' target='https://tools.ietf.org/html/rfc7748' />
       </reference>
       <reference anchor="CFRG-EdDSA">
         <front>
