@@ -267,7 +267,10 @@
         <t> Structure of these extensions:</t>
         <t> The general structure of TLS extensions is described in <xref target="RFC4366"/>, and this specification
           adds two new types to ExtensionType.<figure><artwork><![CDATA[
-   enum { elliptic_curves(10), ec_point_formats(11) } ExtensionType;
+   enum {
+       elliptic_curves(10),
+       ec_point_formats(11)
+   } ExtensionType;
 ]]></artwork></figure><list style="hanging">
           <t hangText="elliptic_curves (Supported Elliptic Curves Extension):">   Indicates the set of elliptic
             curves supported by the client.  For this extension, the opaque extension_data field contains
@@ -338,8 +341,11 @@
         </section>
         <section anchor="supp_pf_ext" title="Supported Point Formats Extension">
           <figure><artwork><![CDATA[
-        enum { uncompressed (0), ansiX962_compressed_prime (1),
-               ansiX962_compressed_char2 (2), reserved (248..255)
+        enum {
+            uncompressed (0),
+            ansiX962_compressed_prime (1),
+            ansiX962_compressed_char2 (2),
+            reserved (248..255)
         } ECPointFormat;
         struct {
             ECPointFormat ec_point_format_list<1..2^8-1>
@@ -427,7 +433,10 @@
         <t> The ECCCurveType enum used to have values for explicit prime and for explicit char2 curves. Those
           values are now deprecated, so only one value remains:</t>
         <t> Structure of this message:<figure><artwork><![CDATA[
-        enum { deprecated (1..2), named_curve (3), reserved(248..255)
+        enum {
+            deprecated (1..2),
+            named_curve (3),
+            reserved(248..255)
         } ECCurveType;
 ]]></artwork></figure></t>
         <t> The value named_curve indicates that a named curve is used. This option SHOULD be used when applicable.</t>
@@ -472,7 +481,9 @@
             public key.</t>
           <t hangText="public:"> The ephemeral ECDH public key.</t>
         <t> The ServerKeyExchange message is extended as follows.<figure><artwork><![CDATA[
-        enum { ec_diffie_hellman } KeyExchangeAlgorithm;
+        enum {
+            ec_diffie_hellman
+        } KeyExchangeAlgorithm;
 ]]></artwork></figure><list style="hanging">
           <t hangText="ec_diffie_hellman:"> Indicates the ServerKeyExchange message contains an ECDH public key.</t></list><figure><artwork><![CDATA[
    select (KeyExchangeAlgorithm) {
@@ -485,7 +496,10 @@
           <t hangText="signed_params:"> A hash of the params, with the signature appropriate to that hash applied.
             The private key corresponding to the certified public key in the server's Certificate message is used
             for signing.<figure><artwork><![CDATA[
-     enum { ecdsa(3), eddsa(TBD5) } SignatureAlgorithm;
+     enum {
+         ecdsa(3),
+         eddsa(TBD5)
+     } SignatureAlgorithm;
      select (SignatureAlgorithm) {
         case ecdsa:
              digitally-signed struct {
@@ -536,8 +550,10 @@
         <t> Structure of this message:</t>
         <t> The TLS CertificateRequest message is extended as follows.<figure><artwork><![CDATA[
         enum {
-            ecdsa_sign(64), rsa_fixed_ecdh(65),
-            ecdsa_fixed_ecdh(66), (255)
+            ecdsa_sign(64),
+            rsa_fixed_ecdh(65),
+            ecdsa_fixed_ecdh(66),
+            (255)
         } ClientCertificateType;
 ]]></artwork></figure><list style="hanging">
           <t hangText="ecdsa_sign, etc."> Indicates that the server would like to use the corresponding client
@@ -592,7 +608,10 @@
           as its ephemeral ECDH public key).</t>
         <t> Structure of this message:</t>
         <t> The TLS ClientKeyExchange message is extended as follows.<figure><artwork><![CDATA[
-        enum { implicit, explicit } PublicValueEncoding;
+        enum {
+            implicit,
+            explicit
+        } PublicValueEncoding;
 ]]></artwork></figure><list style="hanging">
           <t hangText="implicit, explicit:"> For ECC cipher suites, this indicates whether the client's ECDH public
             key is in the client's certificate ("implicit") or is provided, as an ephemeral ECDH public key, in the
