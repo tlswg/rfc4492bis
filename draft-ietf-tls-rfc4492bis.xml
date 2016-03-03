@@ -326,7 +326,7 @@
             value assignments are added.</t>
           <figure><artwork><![CDATA[
         struct {
-            NamedCurve elliptic_curve_list<1..2^16-1>
+            NamedCurve elliptic_curve_list<2..2^16-1>
         } EllipticCurveList;
 ]]></artwork></figure>
           <t> Items in elliptic_curve_list are ordered according to the client's preferences (favorite choice
