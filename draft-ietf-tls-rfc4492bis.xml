@@ -818,7 +818,7 @@
       <t> IANA, please update these two registries to refer to this document.</t>
       <t> IANA is requested to assign two values from the NamedCurve registry with names eddsa_ed25519(TBD3) 
         and eddsa_ed448(TBD4) with this document as reference. IANA has already assigned the value 29 to 
-        ecdh_x25519, and the value 30 to ecdh_x448(TBD2).</t>
+        ecdh_x25519, and the value 30 to ecdh_x448.</t>
       <t> IANA is requested to assign one value from SignatureAlgorithm Registry with name eddsa(TBD5) with this
         document as reference.</t>
     </section>
