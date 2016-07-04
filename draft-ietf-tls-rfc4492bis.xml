@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-06" category="std" obsoletes="4492">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-08" category="std" obsoletes="4492">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -319,7 +319,9 @@
           <t> secp256r1, etc: Indicates support of the corresponding named curve or class of explicitly defined
             curves.  The named curves secp256r1, secp384r1, and secp521r1 are specified in SEC 2
             <xref target="SECG-SEC2"/>. These curves are also recommended in ANSI X9.62
-            <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. ecdh_x25519 and ecdh_x448
+            <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. The rest of this document
+            refers to these three curves as the "NIST curves" because they were originally standardized by the National
+            Institute of Standards and Technology. The curves ecdh_x25519 and ecdh_x448
             are defined in <xref target="RFC7748"/>. eddsa_ed25519 and eddsa_ed448 are signature-only curves defined in
             <xref target="CFRG-EdDSA"/>. Values 0xFE00 through 0xFEFF are reserved for private use.</t>
           <t> The NamedCurve name space is maintained by IANA.  See <xref target="iana"/> for information on how new
@@ -343,8 +345,7 @@
           <figure><artwork><![CDATA[
         enum {
             uncompressed (0),
-            ansiX962_compressed_prime (1),
-            ansiX962_compressed_char2 (2),
+            deprecated (1..2),
             reserved (248..255)
         } ECPointFormat;
         struct {
@@ -452,11 +453,11 @@
 ]]></artwork></figure></t>
           <t hangText="point:"> This is the byte string representation of an elliptic curve point following the
             conversion routine in Section 4.3.6 of <xref target="ANSI.X9-62.2005"/>.  This byte string may
-            represent an elliptic curve point in uncompressed or compressed format; it MUST conform to what the
-            client has requested through a Supported Point Formats Extension if this extension was used. For the
-            X25519 and X448 curves, the only valid representation is the one specified in
-            <xref target="RFC7748"/> - a 32- or 56-octet representation of the u value of the point. This structure
-            MUST NOT be used with Ed25519 and Ed448 public keys.</t>
+            represent an elliptic curve point in uncompressed, compressed, or hybrid format, but this specification
+            deprecates all but the uncompressed format. For the NIST curves, the format is repeated in <xref 
+            target="UncompressedFormat"/> for convenience. For the X25519 and X448 curves, the only valid 
+            representation is the one specified in <xref target="RFC7748"/> - a 32- or 56-octet representation of 
+            the u value of the point. This structure MUST NOT be used with Ed25519 and Ed448 public keys.</t>
           <t> <figure><artwork><![CDATA[
         struct {
             ECCurveType    curve_type;
@@ -529,7 +530,8 @@
                s       INTEGER
            }
 ]]></artwork></figure></t>
-        <t>EdDSA signatures are generated and verified according to <xref target="CFRG-EdDSA"/>. The digitally-signed
+        <t>EdDSA signatures in both the protocol and in certificates that conform to <xref target="PKIX-EdDSA"/> are 
+          generated and verified according to <xref target="CFRG-EdDSA"/>. The digitally-signed
           element is encoded as an opaque vector&lt;0..2^16-1&gt;, the contents of which is the octet string output of
           the EdDSA signing algorithm.</t>
         <t> Actions of the sender:</t>
@@ -541,6 +543,28 @@
           parameters and ephemeral ECDH public key from the ServerKeyExchange message.  (A possible reason for a
           fatal handshake failure is that the client's capabilities for handling elliptic curves and point formats
           are exceeded; cf. <xref target="ch_extensions"/>.)</t>
+        <section anchor="UncompressedFormat" title="Uncompressed Point Format for NIST curves">
+          <t> The following represents the wire format for representing ECPoint in ServerKeyExchange records.
+            The first octet of the representation indicates the form, which may be compressed, uncompressed, or
+            hybrid. This specification supports only the uncompressed format for these curves. This is followed by
+            the binary representation of the X value in "big-endian" or "network" format, followed by the binary
+            representation of the Y value in "big-endian" or "network" format. There are no internal length markers, 
+            so each number representation occupies as many octets as implied by the curve parameters. For P-256 this
+            means that each of X and Y use 32 octets, padded on the left by zeros if necessary. For P-384 they take 48 
+            octets each, and for P-521 they take 66 octets each.</t>
+          <t> Here's a more format representation:<figure><artwork><![CDATA[
+          enum {
+              uncompressed(4),
+              (255)
+            } PointConversionForm;
+            
+          struct {
+              PointConversionForm  form;
+              opaque               X[coordinate_length];
+              opaque               Y[coordinate_length];
+          } UncompressedPointRepresentation;
+          ]]></artwork></figure></t>
+        </section>
       </section>
       <section anchor="certreq" title="Certificate Request">
         <t> When this message is sent:</t>
@@ -727,10 +751,11 @@
         <t> All RSA signatures must be generated and verified according to <xref target="PKCS1"/> block type 1.</t>
       </section>
       <section anchor="valid25519" title="Public Key Validation">
-        <t> With the NIST curves, each party must validate the public key sent by its peer before performing
-          cryptographic computations with it.  Failing to do so allows attackers to gain information about the private
-          key, to the point that they may recover the entire private key in a few requests, if that key is not really
-          ephemeral.</t>
+        <t> With the NIST curves, each party must validate the public key sent by its peer. A receiving party MUST 
+          check that the x and y parameters from the peer's public value satisfy the curve equation, y^2 = x^3 + ax + b 
+          mod p. See section 2.3 of <xref target="Menezes"/> for details. Failing to do so allows attackers to gain 
+          information about the private key, to the point that they may recover the entire private key in a few requests, 
+          if that key is not really ephemeral.</t>
         <t> X25519 was designed in a way that the result of X25519(x, d) will never reveal information about
           d, provided it was chosen as prescribed, for any value of x (the same holds true for X448).</t>
         <t> All-zeroes output from X25519 or X448 MUST NOT be used for premaster secret (as required by definition
@@ -785,17 +810,15 @@
         base documemts apply accordingly.</t>
       <t> Security discussions specific to ECC can be found in <xref target="IEEE.P1363.1998"/> and
         <xref target="ANSI.X9-62.2005"/>. One important issue that implementers and users must consider is elliptic
-        curve selection.  Guidance on selecting an appropriate elliptic curve size is given in Table 1.</t>
+        curve selection.  Guidance on selecting an appropriate elliptic curve size is given in Table 1. Security
+        considerations specific to X25519 and X448 are discussed in section 7 of <xref target="RFC7748"/>.</t>
       <t> Beyond elliptic curve size, the main issue is elliptic curve structure.  As a general principle, it is
         more conservative to use elliptic curves with as little algebraic structure as possible. Thus, random curves
         are more conservative than special curves such as Koblitz curves, and curves over F_p with p random are more
-        conservative than curves over F_p with p of a special form (and curves over F_p with p random might be
+        conservative than curves over F_p with p of a special form, and curves over F_p with p random are 
         considered more conservative than curves over F_2^m as there is no choice between multiple fields of similar
-        size for characteristic 2).  Note, however, that algebraic structure can also lead to implementation
-        efficiencies, and implementers and users may, therefore, need to balance conservatism against a need for
-        efficiency.  Concrete attacks are known against only very few special classes of curves, such as supersingular
-        curves, and these classes are excluded from the ECC standards that this document references
-        <xref target="IEEE.P1363.1998"/>, <xref target="ANSI.X9-62.2005"/>.</t>
+        size for characteristic 2.</t>
+      <t> NEED TO ADD A PARAGRAPH HERE ABOUT WHY X25519/X448 ARE PREFERRABLE TO NIST CURVES.</t>
       <t> Another issue is the potential for catastrophic failures when a single elliptic curve is widely used.
         In this case, an attack on the elliptic curve might result in the compromise of a large number of keys.
         Again, this concern may need to be balanced against efficiency and interoperability improvements associated
@@ -831,6 +854,8 @@
         <t> Chris Hawk</t>
         <t> Bodo Moeller</t></list></t>
       <t> In the predecessor document, the authors acknowledged the contributions of Bill Anderson and Tim Dierks.</t>
+      <t> The author would like to thank Nikos Mavrogiannopoulos, Martin Thomson, and Tanja Lange for contributions
+        to this document.</t>
     </section>
     <section anchor="history" title="Version History for This Draft">
       <t> NOTE TO RFC EDITOR: PLEASE REMOVE THIS SECTION</t>
@@ -873,20 +898,20 @@
           <title>Edwards-curve Digital Signature Algorithm (EdDSA)</title>
             <author initials="S" surname="Josefsson" fullname="Simon Josefsson"></author>
             <author initials="I" surname="Liusvaara" fullname="Ilari Liusvaara"></author>
-            <date month="October" day="8" year="2015"/>
+            <date month="March" day="21" year="2016"/>
           </front>
-        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-eddsa-00"/>
-        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-eddsa-00.txt"/>
+        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-eddsa-05"/>
+        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-eddsa-05.txt"/>
       </reference>
       <reference anchor="PKIX-EdDSA">
         <front>
           <title>Using EdDSA in the Internet X.509 Public Key Infrastructure</title>
             <author initials="S" surname="Josefsson" fullname="Simon Josefsson"></author>
             <author initials="N" surname="Mavrogiannopoulos" fullname="Nikos Mavrogiannopoulos"></author>
-            <date month="September" day="23" year="2015"/>
+            <date month="March" day="20" year="2016"/>
           </front>
-        <seriesInfo name="Internet-Draft" value="draft-josefsson-pkix-eddsa-03"/>
-        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-josefsson-pkix-eddsa-03"/>
+        <seriesInfo name="Internet-Draft" value="draft-ietf-curdle-pkix-eddsa-00"/>
+        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-ietf-curdle-pkix-eddsa-00"/>
       </reference>
       <reference anchor='RFC2246'>
         <front>
@@ -1035,6 +1060,16 @@
       </reference>
     </references>
     <references title="Informative References">
+      <reference anchor="Menezes">
+        <front>
+          <title>On Reusing Ephemeral Keys In Diffie-Hellman Key Agreement Protocols</title>
+          <author initials="A" surname="Menezes" fullname="A. Menezes" />
+          <author initials="B" surname="Ustaoglu" fullname="B. UstaOglu" />
+          <date month="December" year="2008" />
+        </front>
+        <seriesInfo name="IACR" value="Menezes2008" />
+        <format type="PDF" target="http://www.cacr.math.uwaterloo.ca/techreports/2008/acr2008-24.pdf" />
+      </reference>
       <reference anchor='I-D.ietf-tls-tls13'>
         <front>
           <title>The Transport Layer Security (TLS) Protocol Version 1.3</title>
@@ -1149,3 +1184,4 @@
     </section>
   </back>
 </rfc>
+
