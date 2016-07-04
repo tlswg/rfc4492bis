@@ -767,8 +767,9 @@
           can be set).</t>
         <t> Since there are some implementation of the X25519 function that impose this restriction on their input
           and others that don't, implementations of X25519 in TLS SHOULD reject public keys when the high-order bit
-          of the last byte is set (in other words, when the value of the leftmost byte is greater than 0x7F) in order
-          to prevent implementation fingerprinting.</t>
+          of the final byte is set (in other words, when the value of the rightmost byte is greater than 0x7F) in order
+          to prevent implementation fingerprinting. Note that this deviates from RFC 7748 which suggests that This
+          value be masked.</t>
         <t>Ed25519 and Ed448 internally do public key validation as part of signature verification.</t>
         <t> Other than this recommended check, implementations do not need to ensure that the public keys they receive
           are legitimate: this is not necessary for security with X25519.</t>
