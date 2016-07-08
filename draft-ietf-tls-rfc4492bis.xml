@@ -552,7 +552,7 @@
             so each number representation occupies as many octets as implied by the curve parameters. For P-256 this
             means that each of X and Y use 32 octets, padded on the left by zeros if necessary. For P-384 they take 48 
             octets each, and for P-521 they take 66 octets each.</t>
-          <t> Here's a more format representation:<figure><artwork><![CDATA[
+          <t> Here's a more formal representation:<figure><artwork><![CDATA[
           enum {
               uncompressed(4),
               (255)
