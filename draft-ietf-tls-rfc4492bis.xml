@@ -661,7 +661,7 @@
 ]]></artwork></figure></t></list></t>
         <t> Actions of the sender:</t>
         <t> The client selects an ephemeral ECDH public key corresponding to the parameters it received from the
-          server according to the ECKAS-DH1 scheme from IEEE 1363.  It conveys this information to the client in
+          server according to the ECKAS-DH1 scheme from IEEE 1363.  It conveys this information to the server in
           the ClientKeyExchange message using the format defined above.</t>
         <t> Actions of the receiver:</t>
         <t> The server retrieves the client's ephemeral ECDH public key from the ClientKeyExchange message and checks
