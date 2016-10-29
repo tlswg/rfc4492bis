@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-08" category="std" obsoletes="4492">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-09" category="std" obsoletes="4492">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -103,7 +103,7 @@
         document's predecessor. <xref target="ack" /> gives acknowledgements. <xref target="rfc4492diff" />
         provides differences from <xref target="RFC4492" />, the document that this one replaces.</t>
       <t> Implementation of this specification requires familiarity with TLS, TLS extensions
-        <xref target="RFC4366" />, and ECC (TBD: reference Wikipedia here?).</t>
+        <xref target="RFC4366" />, and ECC.</t>
       <section anchor="mustshouldmay" title="Conventions Used in This Document">
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT",
           "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described
@@ -185,7 +185,7 @@
       <section anchor="ecdh_anon" title="ECDH_anon">
         <t> NOTE: Despite the name beginning with "ECDH_" (no E), the key used in ECDH_anon is ephemeral just like
           the key in ECDHE_RSA and ECDHE_ECDSA. The naming follows the example of DH_anon, where the key is also
-          ephemeral but the name does not reflect it. TBD: Do we want to rename this so that it makes sense?</t>
+          ephemeral but the name does not reflect it.</t>
         <t> In ECDH_anon, the server's Certificate, the CertificateRequest, the client's Certificate, and the
           CertificateVerify messages MUST NOT be sent.</t>
         <t> The server MUST send an ephemeral ECDH public key and a specification of the corresponding curve in
@@ -661,7 +661,7 @@
 ]]></artwork></figure></t></list></t>
         <t> Actions of the sender:</t>
         <t> The client selects an ephemeral ECDH public key corresponding to the parameters it received from the
-          server according to the ECKAS-DH1 scheme from IEEE 1363.  It conveys this information to the server in
+          server according to the ECKAS-DH1 scheme from IEEE 1363.  It conveys this information to the client in
           the ClientKeyExchange message using the format defined above.</t>
         <t> Actions of the receiver:</t>
         <t> The server retrieves the client's ephemeral ECDH public key from the ClientKeyExchange message and checks
@@ -899,21 +899,23 @@
           <title>Edwards-curve Digital Signature Algorithm (EdDSA)</title>
             <author initials="S" surname="Josefsson" fullname="Simon Josefsson"></author>
             <author initials="I" surname="Liusvaara" fullname="Ilari Liusvaara"></author>
-            <date month="March" day="21" year="2016"/>
+            <date month="August" day="19" year="2016"/>
           </front>
-        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-eddsa-05"/>
-        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-eddsa-05.txt"/>
+        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-eddsa-08"/>
+        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-eddsa-08.txt"/>
       </reference>
-      <reference anchor="PKIX-EdDSA">
+      <reference anchor="PKIX-EdDSA" target="https://tools.ietf.org/html/draft-ietf-curdle-pkix-01">
         <front>
-          <title>Using EdDSA in the Internet X.509 Public Key Infrastructure</title>
-            <author initials="S" surname="Josefsson" fullname="Simon Josefsson"></author>
-            <author initials="N" surname="Mavrogiannopoulos" fullname="Nikos Mavrogiannopoulos"></author>
-            <date month="March" day="20" year="2016"/>
-          </front>
-        <seriesInfo name="Internet-Draft" value="draft-ietf-curdle-pkix-eddsa-00"/>
-        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-ietf-curdle-pkix-eddsa-00"/>
-      </reference>
+          <title>Algorithm Identifiers for Ed25519, Ed25519ph, Ed448, Ed448ph, X25519 and X448 for use in the Internet X.509 Public Key Infrastructure</title>
+          <author initials="S." surname="Josefsson" fullname="Simon Josefsson">
+            <organization />
+          </author>
+          <author initials="J." surname="Schaad" fullname="Jim Schaad">
+            <organization />
+          </author>
+          <date month="August" year="2016" />
+        </front>
+      </reference>      
       <reference anchor='RFC2246'>
         <front>
           <title>The TLS Protocol Version 1.0</title>
@@ -1074,12 +1076,11 @@
       <reference anchor='I-D.ietf-tls-tls13'>
         <front>
           <title>The Transport Layer Security (TLS) Protocol Version 1.3</title>
-          <author initials='T' surname='Dierks' fullname='Tim Dierks' />
           <author initials='E' surname='Rescorla' fullname='Eric Rescorla' />
-          <date month='July' day='8' year='2014' />
+          <date month='October' day='26' year='2016' />
         </front>
-        <seriesInfo name='Internet-Draft' value='draft-ietf-tls-tls13-02' />
-        <format type='HTML' target='http://tools.ietf.org/html/draft-ietf-tls-tls13-02' />
+        <seriesInfo name='Internet-Draft' value='draft-ietf-tls-tls13-18' />
+        <format type='HTML' target='http://tools.ietf.org/html/draft-ietf-tls-tls13-18' />
       </reference>
       <reference anchor="IEEE.P1363.1998">
         <front>
@@ -1185,4 +1186,5 @@
     </section>
   </back>
 </rfc>
+
 
