@@ -315,7 +315,7 @@
             (0xFFFF)
         } NamedCurve;
 ]]></artwork></figure>
-          <t> Note that other specification have since added other values to this enumeration.</t>
+          <t> Note that other specifications have since added other values to this enumeration.</t>
           <t> secp256r1, etc: Indicates support of the corresponding named curve or class of explicitly defined
             curves.  The named curves secp256r1, secp384r1, and secp521r1 are specified in SEC 2
             <xref target="SECG-SEC2"/>. These curves are also recommended in ANSI X9.62
