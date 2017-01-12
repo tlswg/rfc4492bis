@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-09" category="std" obsoletes="4492">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-10" category="std" obsoletes="4492">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -46,7 +46,7 @@
       </address>
     </author>
 
-    <date year="2016"/>
+    <date year="2017"/>
     <area>Security Area</area>
     <workgroup>TLS Working Group</workgroup>
     <keyword>Internet-Draft</keyword>
@@ -54,7 +54,7 @@
       <t> This document describes key exchange algorithms based on Elliptic Curve Cryptography (ECC) for the Transport
         Layer Security (TLS) protocol.  In particular, it specifies the use of Ephemeral Elliptic Curve Diffie-Hellman
         (ECDHE) key agreement in a TLS handshake and the use of Elliptic Curve Digital Signature Algorithm (ECDSA) and
-        Edwards Digital Signature Algorithm (EdDSA) as new authentication mechanisms.</t>
+        Edwards Digital Signature Algorithm (EdDSA) as authentication mechanisms.</t>
     </abstract>
   </front>
  <!--
@@ -114,12 +114,9 @@
         preferences (see <xref target="tlsext"/>).  However, the computational cost incurred by a server is higher
         for ECDHE_RSA than for the traditional RSA key exchange, which does not provide forward secrecy.</t>
       <t> The anonymous key exchange algorithm does not provide authentication of the server or the client.  Like
-        other anonymous TLS key exchanges, it is subject to man-in-the-middle attacks. Implementations of this
-        algorithm SHOULD provide authentication by other means.</t>
-      <t> Note that there is no structural difference between ECDH and ECDSA keys.  A certificate issuer may use
-        X.509 v3 keyUsage and extendedKeyUsage extensions to restrict the use of an ECC public key to certain
-        computations.  This document refers to an ECC key as ECDH-capable if its use in ECDH is permitted.
-        ECDSA-capable and EdDSA-capable are defined similarly. <figure>
+        other anonymous TLS key exchanges, it is subject to man-in-the-middle attacks. Applications using TLS with
+        this algorithm SHOULD provide authentication by other means.</t>
+      <t><figure>
         <artwork><![CDATA[
        Client                                        Server
        ------                                        ------
@@ -184,9 +181,10 @@
     </section>
     <section anchor="clientauth" title="Client Authentication">
       <t> This document defines a client authentication mechanism, named after the type of client certificate
-        involved: ECDSA_sign.  The ECDSA_sign mechanism is usable with any of the non-anonymous ECC key exchange
+        involved: ECDSA_sign. The ECDSA_sign mechanism is usable with any of the non-anonymous ECC key exchange
         algorithms described in <xref target="ecdh"/> as well as other non-anonymous (non-ECC) key exchange
         algorithms defined in TLS.</t>
+      <t> Note that client certificates with EdDSA public keys use this mechanism. </t>
       <t> The server can request ECC-based client authentication by including this certificate type in its
         CertificateRequest message. The client must check if it possesses a certificate appropriate for the method
         suggested by the server and is willing to use it for authentication.</t>
@@ -209,7 +207,7 @@
       </section>
     </section>
     <section anchor="tlsext" title="TLS Extensions for ECC">
-      <t> Two new TLS extensions are defined in this specification: (i) the Supported Elliptic Curves Extension,
+      <t> Two TLS extensions are defined in this specification: (i) the Supported Elliptic Curves Extension,
         and (ii) the Supported Point Formats Extension.  These allow negotiating the use of specific curves and
         point formats (e.g., compressed vs. uncompressed, respectively) during a handshake starting a new session.
         These extensions are especially relevant for constrained clients that may only support a limited number of
@@ -249,16 +247,16 @@
           it can parse.</t>
         <t> Structure of these extensions:</t>
         <t> The general structure of TLS extensions is described in <xref target="RFC4366"/>, and this specification
-          adds two new types to ExtensionType.<figure><artwork><![CDATA[
+          adds two types to ExtensionType.<figure><artwork><![CDATA[
    enum {
        elliptic_curves(10),
        ec_point_formats(11)
    } ExtensionType;
-]]></artwork></figure><list style="hanging">
-          <t hangText="elliptic_curves (Supported Elliptic Curves Extension):">   Indicates the set of elliptic
+]]></artwork></figure><list style="symbols">
+          <t> elliptic_curves (Supported Elliptic Curves Extension): Indicates the set of elliptic
             curves supported by the client.  For this extension, the opaque extension_data field contains
             EllipticCurveList.  See <xref target="supp_ec_ext"/> for details.</t>
-          <t hangText="ec_point_formats (Supported Point Formats Extension):"> Indicates the set of point formats
+          <t> ec_point_formats (Supported Point Formats Extension): Indicates the set of point formats
             that the client can parse.  For this extension, the opaque extension_data field contains ECPointFormatList.
             See <xref target="supp_pf_ext"/> for details.</t></list></t>
         <t> Actions of the sender:</t>
@@ -286,13 +284,12 @@
             although the enumeration below is still named NamedCurve) for use in TLS. Only three have seen
             much use. This specification is deprecating the rest (with numbers 1-22). This specification also
             deprecates the explicit curves with identifiers 0xFF01 and 0xFF02. It also adds the new curves
-            defined in <xref target="RFC7748"/> and <xref target="CFRG-EdDSA"/>. The end result is as follows:</t>
+            defined in <xref target="RFC7748"/>. The end result is as follows:</t>
           <figure><artwork><![CDATA[
         enum {
             deprecated(1..22),
             secp256r1 (23), secp384r1 (24), secp521r1 (25),
             ecdh_x25519(29), ecdh_x448(30),
-            eddsa_ed25519(TBD3), eddsa_ed448(TBD4),
             reserved (0xFE00..0xFEFF),
             deprecated(0xFF01..0xFF02),
             (0xFFFF)
@@ -305,8 +302,7 @@
             <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. The rest of this document
             refers to these three curves as the "NIST curves" because they were originally standardized by the National
             Institute of Standards and Technology. The curves ecdh_x25519 and ecdh_x448
-            are defined in <xref target="RFC7748"/>. eddsa_ed25519 and eddsa_ed448 are signature-only curves defined in
-            <xref target="CFRG-EdDSA"/>. Values 0xFE00 through 0xFEFF are reserved for private use.</t>
+            are defined in <xref target="RFC7748"/>.  Values 0xFE00 through 0xFEFF are reserved for private use.</t>
           <t> The NamedCurve name space is maintained by IANA.  See <xref target="iana"/> for information on how new
             value assignments are added.</t>
           <figure><artwork><![CDATA[
@@ -347,6 +343,16 @@
             note that the first two octets indicate the extension type (Supported Point Formats Extension):<figure><artwork><![CDATA[
         00 0B 00 02 01 00
 ]]></artwork></figure></t>
+        </section>
+        <section anchor="sighash_ext" title="The signature_algorithms Extension and EdDSA">
+          <t> The signature_algorithms extension, defined in section 7.4.1.4.1 of <xref target="RFC5246"/>, advertises
+            the combinations of signature algorithm and hash function that the client supports. The pure (non pre-hashed)
+            forms of EdDSA do not hash the data before signing it. For this reason it does not make sense to combine them
+            with a signature algorithm in the extension.</t>
+          <t> For bits-on-the-wire compatibility with TLS 1.3, we define a new dummy value in the HashAlgorithm registry
+            which we will call "Intrinsic" (value TBD5) meaning that hashing is intrinsic to the signature algorithm.</t>
+          <t> To represent ed25519 and ed448 in the signature_algorithms extension, the value shall be (TBD5,TBD3) and 
+            (TBD5,TBD4) respectively.</t>  
         </section>
       </section>
       <section anchor="serverhello_ext" title="Server Hello Extension">
@@ -434,7 +440,7 @@
             opaque point <1..2^8-1>;
         } ECPoint;
 ]]></artwork></figure></t>
-          <t hangText="point:"> This is the byte string representation of an elliptic curve point following the
+          <t> point: This is the byte string representation of an elliptic curve point following the
             conversion routine in Section 4.3.6 of <xref target="ANSI.X9-62.2005"/>.  This byte string may
             represent an elliptic curve point in uncompressed, compressed, or hybrid format, but this specification
             deprecates all but the uncompressed format. For the NIST curves, the format is repeated in <xref 
@@ -450,46 +456,46 @@
             };
         } ECParameters;
 ]]></artwork></figure></t>
-          <t hangText="curve_type:"> This identifies the type of the elliptic curve domain parameters.</t>
-          <t hangText="namedcurve:"> Specifies a recommended set of elliptic curve domain parameters.  All those
+          <t> curve_type: This identifies the type of the elliptic curve domain parameters.</t>
+          <t> namedCurve: Specifies a recommended set of elliptic curve domain parameters.  All those
             values of NamedCurve are allowed that refer to a curve capable of Diffie-Hellman.  With the deprecation
-            of the explicit curves, this now includes all values of NamedCurve except eddsa_ed25519(TBD3) and
-            eddsa_ed448(TBD4).</t>
+            of the explicit curves, this now includes all of the NamedCurve values.</t>
           <t><figure><artwork><![CDATA[
         struct {
             ECParameters    curve_params;
             ECPoint         public;
         } ServerECDHParams;
 ]]></artwork></figure></t>
-          <t hangText="curve_params:"> Specifies the elliptic curve domain parameters associated with the ECDH
+          <t> curve_params: Specifies the elliptic curve domain parameters associated with the ECDH
             public key.</t>
-          <t hangText="public:"> The ephemeral ECDH public key.</t>
+          <t> public: The ephemeral ECDH public key.</t>
         <t> The ServerKeyExchange message is extended as follows.<figure><artwork><![CDATA[
         enum {
             ec_diffie_hellman
         } KeyExchangeAlgorithm;
-]]></artwork></figure><list style="hanging">
-          <t hangText="ec_diffie_hellman:"> Indicates the ServerKeyExchange message contains an ECDH public key.</t></list><figure><artwork><![CDATA[
+]]></artwork></figure><list style="symbols">
+          <t> ec_diffie_hellman: Indicates the ServerKeyExchange message contains an ECDH public key.</t></list><figure><artwork><![CDATA[
    select (KeyExchangeAlgorithm) {
        case ec_diffie_hellman:
            ServerECDHParams    params;
            Signature           signed_params;
    } ServerKeyExchange;
-]]></artwork></figure><list style="hanging">
-          <t hangText="params:"> Specifies the ECDH public key and associated domain parameters.</t>
-          <t hangText="signed_params:"> A hash of the params, with the signature appropriate to that hash applied.
+]]></artwork></figure><list style="symbols">
+          <t> params: Specifies the ECDH public key and associated domain parameters.</t>
+          <t> signed_params: A hash of the params, with the signature appropriate to that hash applied.
             The private key corresponding to the certified public key in the server's Certificate message is used
             for signing.<figure><artwork><![CDATA[
      enum {
          ecdsa(3),
-         eddsa(TBD5)
+         ed25519(TBD3)
+         ed448(TBD4)
      } SignatureAlgorithm;
      select (SignatureAlgorithm) {
         case ecdsa:
              digitally-signed struct {
                  opaque sha_hash[sha_size];
              };
-        case eddsa:
+        case ed25519,ed448:
              digitally-signed struct {
                  opaque rawdata[rawdata_size];
              };
@@ -562,8 +568,8 @@
             ecdsa_fixed_ecdh(66),
             (255)
         } ClientCertificateType;
-]]></artwork></figure><list style="hanging">
-          <t hangText="ecdsa_sign, etc."> Indicates that the server would like to use the corresponding client
+]]></artwork></figure><list style="symbols">
+          <t> ecdsa_sign, etc.: Indicates that the server would like to use the corresponding client
             authentication method specified in <xref target="clientauth"/>.</t></list></t>
         <t> Actions of the sender:</t>
         <t> The server decides which client authentication methods it would like to use, and conveys this information
@@ -619,8 +625,8 @@
             implicit,
             explicit
         } PublicValueEncoding;
-]]></artwork></figure><list style="hanging">
-          <t hangText="implicit, explicit:"> For ECC cipher suites, this indicates whether the client's ECDH public
+]]></artwork></figure><list style="symbols">
+          <t> implicit, explicit: For ECC cipher suites, this indicates whether the client's ECDH public
             key is in the client's certificate ("implicit") or is provided, as an ephemeral ECDH public key, in the
             ClientKeyExchange message ("explicit").  (This is "explicit" in ECC cipher suites except when the client
             uses the ECDSA_fixed_ECDH or RSA_fixed_ECDH client authentication mechanism.)<figure><artwork><![CDATA[
@@ -631,7 +637,7 @@
             } ecdh_public;
         } ClientECDiffieHellmanPublic;
 ]]></artwork></figure></t>
-          <t hangText="ecdh_Yc:"> Contains the client's ephemeral ECDH public key as a byte string ECPoint.point,
+          <t> ecdh_Yc: Contains the client's ephemeral ECDH public key as a byte string ECPoint.point,
             which may represent an elliptic curve point in uncompressed or compressed format. Curves eddsa_ed25519 and
             eddsa_ed448 MUST NOT be used here. Here, the format MUST conform to what the server has requested through a Supported
             Point Formats Extension if this extension was used, and MUST be uncompressed if this extension was not
@@ -823,11 +829,12 @@
       <t> NOTE: IANA, please update the registries to reflect the new policy.</t>
       <t> NOTE: RFC editor please delete these two notes prior to publication.</t>
       <t> IANA, please update these two registries to refer to this document.</t>
-      <t> IANA is requested to assign two values from the NamedCurve registry with names eddsa_ed25519(TBD3) 
-        and eddsa_ed448(TBD4) with this document as reference. IANA has already assigned the value 29 to 
-        ecdh_x25519, and the value 30 to ecdh_x448.</t>
-      <t> IANA is requested to assign one value from SignatureAlgorithm Registry with name eddsa(TBD5) with this
-        document as reference.</t>
+      <t> IANA has already assigned the value 29 to ecdh_x25519, and the value 30 to ecdh_x448.</t>
+      <t> IANA is requested to assign two values from the NamedCurve registry with names ed25519(TBD3) 
+        and ed448(TBD4) with this document as reference. To keep compatibility with TLS 1.3, TBD3 should be 0x07, 
+        and TBD4 should be 0x08.</t>
+      <t> IANA is requested to assign one value from the "TLS HashAlgorithm Registry" with name Intrinsic(TBD5)
+        and this document as reference. To keep compatibility with TLS 1.3, TBD5 should be 0x08.</t>
     </section>
     <section anchor="ack" title="Acknowledgements">
       <t> Most of the text is this document is taken from <xref target="RFC4492"/>, the predecessor of this
@@ -1088,16 +1095,6 @@
         <seriesInfo name='RFC' value='4492' />
         <format type='HTML' target='http://tools.ietf.org/html/rfc4492' />
       </reference>
-      <reference anchor="Lenstra_Verheul">
-        <front>
-          <title>Selecting Cryptographic Key Sizes</title>
-          <author initials="A." surname="Lenstra" fullname="Arjen Klaas Lenstra"/>
-          <author initials="E." surname="Verheul" fullname="Eric Verheul"/>
-          <date year="2001"/>
-        </front>
-        <seriesInfo name="Journal of Cryptology" value="14 (2001) 255-293"/>
-        <format type='PDF' target='http://www.cs.ru.nl/E.Verheul/papers/Joc2001/joc2001.pdf' />
-      </reference>
       <reference anchor="FIPS.180-2" target="http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf">
         <front>
           <title>Secure Hash Standard</title>
@@ -1169,5 +1166,3 @@
     </section>
   </back>
 </rfc>
-
-
