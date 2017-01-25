@@ -520,7 +520,7 @@
            }
 ]]></artwork></figure></t>
         <t>EdDSA signatures in both the protocol and in certificates that conform to <xref target="PKIX-EdDSA"/> are 
-          generated and verified according to <xref target="CFRG-EdDSA"/>. The digitally-signed
+          generated and verified according to <xref target="RFC8032"/>. The digitally-signed
           element is encoded as an opaque vector&lt;0..2^16-1&gt;, the contents of which is the octet string output of
           the EdDSA signing algorithm.</t>
         <t> Actions of the sender:</t>
@@ -684,7 +684,7 @@
             s       INTEGER
         }
 ]]></artwork></figure></t>
-        <t>EdDSA signatures are generated and verified according to <xref target="CFRG-EdDSA"/>. The digitally-signed
+        <t>EdDSA signatures are generated and verified according to <xref target="RFC8032"/>. The digitally-signed
           element is encoded as an opaque vector&lt;0..2^16-1&gt;, the contents of which is the octet string output of
           the EdDSA signing algorithm.</t>
         <t> Actions of the sender:</t>
@@ -700,7 +700,7 @@
           <xref target="RFC3279"/> or another RFC that replaces or extends it. X.509 certificates containing ECC
           public keys or signed using EdDSA MUST comply with <xref target="PKIX-EdDSA"/>. Clients SHOULD use the
           elliptic curve domain parameters recommended in ANSI X9.62, FIPS 186-4, and SEC 2
-          <xref target="SECG-SEC2"/> or in <xref target="CFRG-EdDSA"/>.</t>
+          <xref target="SECG-SEC2"/> or in <xref target="RFC8032"/>.</t>
         <t>EdDSA keys using Ed25519 and Ed25519ph algorithms MUST use the eddsa_ed25519 curve, and Ed448 and Ed448ph
           keys MUST use the eddsa_ed448 curve. Curves ecdh_x25519, ecdh_x448, eddsa_ed25519 and eddsa_ed448 MUST NOT be
           used for ECDSA.</t>
@@ -729,7 +729,7 @@
           hashing.  The default hash function is SHA-1 <xref target="FIPS.180-2"/>, and sha_size (see
           <xref target="ske"/> and <xref target="cert_verify"/>) is 20. However, an alternative hash function, such
           as one of the new SHA hash functions specified in FIPS 180-2 <xref target="FIPS.180-2"/>, SHOULD be used instead.</t>
-        <t> All EdDSA computations MUST be performed according to <xref target="CFRG-EdDSA"/> or its succesors. Data
+        <t> All EdDSA computations MUST be performed according to <xref target="RFC8032"/> or its succesors. Data
           to be signed/verified is run through the EdDSA algorithm wih no hashing (EdDSA will internally run the data
           through the PH function).</t>
         <t> RFC 4492 anticipated the standardization of a mechanism for specifying the required hash function in the certificate,
@@ -884,15 +884,15 @@
         <seriesInfo name='RFC' value='7748' />
         <format type='HTML' target='https://tools.ietf.org/html/rfc7748' />
       </reference>
-      <reference anchor="CFRG-EdDSA">
+      <reference anchor="RFC8032">
         <front>
-          <title>Edwards-curve Digital Signature Algorithm (EdDSA)</title>
+          <title>Edwards-Curve Digital Signature Algorithm (EdDSA)</title>
             <author initials="S" surname="Josefsson" fullname="Simon Josefsson"></author>
             <author initials="I" surname="Liusvaara" fullname="Ilari Liusvaara"></author>
-            <date month="August" day="19" year="2016"/>
+            <date month="January" year="2017"/>
           </front>
-        <seriesInfo name="Internet-Draft" value="draft-irtf-cfrg-eddsa-08"/>
-        <format type="TXT" target="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-eddsa-08.txt"/>
+        <seriesInfo name="RFC" value="8032"/>
+        <format type="HTML" target="https://tools.ietf.org/html/rfc8032"/>
       </reference>
       <reference anchor="PKIX-EdDSA" target="https://tools.ietf.org/html/draft-ietf-curdle-pkix-01">
         <front>
