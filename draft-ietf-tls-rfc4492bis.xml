@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-11" category="std" obsoletes="4492">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-12" category="std" obsoletes="4492">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -731,7 +731,7 @@
           as one of the new SHA hash functions specified in FIPS 180-2 <xref target="FIPS.180-2"/>, SHOULD be used instead.</t>
         <t> All EdDSA computations MUST be performed according to <xref target="RFC8032"/> or its succesors. Data
           to be signed/verified is run through the EdDSA algorithm wih no hashing (EdDSA will internally run the data
-          through the PH function).</t>
+          through the PH function). The context parameter for Ed448 MUST be set to the empty string.</t>
         <t> RFC 4492 anticipated the standardization of a mechanism for specifying the required hash function in the certificate,
         perhaps in the parameters field of the subjectPublicKeyInfo. Such standardization never took place, and as a result,
         SHA-1 is used in TLS 1.1 and earlier (except for EdDSA, which uses identity function). TLS 1.2 added a
@@ -808,12 +808,13 @@
         conservative than curves over F_p with p of a special form, and curves over F_p with p random are 
         considered more conservative than curves over F_2^m as there is no choice between multiple fields of similar
         size for characteristic 2.</t>
-      <t> NEED TO ADD A PARAGRAPH HERE ABOUT WHY X25519/X448 ARE PREFERRABLE TO NIST CURVES.</t>
       <t> Another issue is the potential for catastrophic failures when a single elliptic curve is widely used.
         In this case, an attack on the elliptic curve might result in the compromise of a large number of keys.
         Again, this concern may need to be balanced against efficiency and interoperability improvements associated
         with widely-used curves. Substantial additional information on elliptic curve choice can be found in
         <xref target="IEEE.P1363.1998"/>, <xref target="ANSI.X9-62.2005"/>, and <xref target="FIPS.186-4"/>.</t>
+      <t> The Introduction of <xref target="RFC8032"/> lists the security, performance, and operational advantages of 
+        EdDSA signatures over ECDSA signatures using the NIST curves. </t>
       <t> All of the key exchange algorithms defined in this document provide forward secrecy. Some of the
         deprecated key exchange algorithms do not.</t>
     </section>
@@ -1166,3 +1167,4 @@
     </section>
   </back>
 </rfc>
+
