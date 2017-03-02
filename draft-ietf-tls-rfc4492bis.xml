@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-12" category="std" obsoletes="4492">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-13" category="std" obsoletes="4492">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -55,6 +55,7 @@
         Layer Security (TLS) protocol.  In particular, it specifies the use of Ephemeral Elliptic Curve Diffie-Hellman
         (ECDHE) key agreement in a TLS handshake and the use of Elliptic Curve Digital Signature Algorithm (ECDSA) and
         Edwards Digital Signature Algorithm (EdDSA) as authentication mechanisms.</t>
+      <t> This document obsoletes and replaces RFC 4492.</t>
     </abstract>
   </front>
  <!--
@@ -295,14 +296,17 @@
             (0xFFFF)
         } NamedCurve;
 ]]></artwork></figure>
-          <t> Note that other specifications have since added other values to this enumeration.</t>
-          <t> secp256r1, etc: Indicates support of the corresponding named curve or class of explicitly defined
-            curves.  The named curves secp256r1, secp384r1, and secp521r1 are specified in SEC 2
+          <t> Note that other specifications have since added other values to this enumeration. Some of those values
+            are not curves at all, but finite field groups. See <xref target="RFC7919"/>.</t>
+          <t> secp256r1, etc: Indicates support of the corresponding named curve or groups.  
+            The named curves secp256r1, secp384r1, and secp521r1 are specified in SEC 2
             <xref target="SECG-SEC2"/>. These curves are also recommended in ANSI X9.62
             <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. The rest of this document
             refers to these three curves as the "NIST curves" because they were originally standardized by the National
             Institute of Standards and Technology. The curves ecdh_x25519 and ecdh_x448
             are defined in <xref target="RFC7748"/>.  Values 0xFE00 through 0xFEFF are reserved for private use.</t>
+          <t> The predecessor of this document also supported explicitly defined prime and char2 curves, but these are
+            deprecated by this specification.</t>
           <t> The NamedCurve name space is maintained by IANA.  See <xref target="iana"/> for information on how new
             value assignments are added.</t>
           <figure><artwork><![CDATA[
@@ -367,10 +371,9 @@
         <t> Structure of this extension:</t>
         <t> The server's Supported Point Formats Extension has the same structure as the client's Supported Point
           Formats Extension (see <xref target="supp_pf_ext"/>).  Items in ec_point_format_list here are ordered
-          according to the server's preference (favorite choice first).  Note that the server may include items that
-          were not found in the client's list (e.g., the server may prefer to receive points in compressed format
-          even when a client cannot parse this format: the same client may nevertheless be capable of outputting
-          points in compressed format).</t>
+          according to the server's preference (favorite choice first).  Note that the server MAY include items that
+          were not found in the client's list. However, without extensions this specification allows exactly one point
+          format, so there is not really any opportunity for mismatches.</t>
         <t> Actions of the sender:</t>
         <t> A server that selects an ECC cipher suite in response to a ClientHello message including a Supported
           Point Formats Extension appends this extension (along with others) to its ServerHello message, enumerating
@@ -402,9 +405,8 @@
       <t> Actions of the sender:</t>
       <t> The server constructs an appropriate certificate chain and conveys it to the client in the Certificate
         message.  If the client has used a Supported Elliptic Curves Extension, the public key in the server's
-        certificate MUST respect the client's choice of elliptic curves; in particular, the public key MUST employ
-        a named curve (not the same curve as an explicit curve) unless the client has indicated support for
-        explicit curves of the appropriate type.  If the client has used a Supported Point Formats Extension, both
+        certificate MUST respect the client's choice of elliptic curves; If the client has used a Supported Point 
+        Formats Extension, both
         the server's public key point and (in the case of an explicit curve) the curve's base point MUST respect
         the client's choice of point formats.  (A server that cannot satisfy these requirements MUST NOT choose
         an ECC cipher suite in its ServerHello message.)</t>
@@ -794,6 +796,12 @@
         <t> TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</t>
         <t> TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256</t></list></t>
     </section>
+    <section anchor="impstat" title="Implementation Status">
+      <t> Both ECDHE and ECDSA with the NIST curves are widely implemented, supported in all major browsers and all 
+        widely used TLS libraries. ECDHE with Curve25519 is by now implemented in several browsers and several TLS 
+        libraries including OpenSSL. Curve448 and EdDSA have working, interoperable implementations, but are not yet
+        as widely deployed.</t>
+    </section>
     <section anchor="sec" title="Security Considerations">
       <t> Security issues are discussed throughout this memo.</t>
       <t> For TLS handshakes using ECC cipher suites, the security considerations in appendices D of all three TLS
@@ -1106,6 +1114,15 @@
         </front>
         <seriesInfo name="FIPS" value="PUB 180-2" />
       </reference>
+      <reference  anchor='RFC7919' target='http://www.rfc-editor.org/info/rfc7919'>
+        <front>
+          <title>Negotiated Finite Field Diffie-Hellman Ephemeral Parameters for Transport Layer Security (TLS)</title>
+          <author initials='D.' surname='Gillmor' fullname='D. Gillmor'><organization /></author>
+          <date year='2016' month='August' />
+        </front>
+        <seriesInfo name='RFC' value='7919'/>
+        <seriesInfo name='DOI' value='10.17487/RFC7919'/>
+      </reference>
     </references>
     <!-- ====================================================================== -->
     <section anchor="equiv" title="Equivalent Curves (Informative)">
@@ -1167,4 +1184,3 @@
     </section>
   </back>
 </rfc>
-
