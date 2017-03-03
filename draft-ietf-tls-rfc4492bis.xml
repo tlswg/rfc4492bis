@@ -832,7 +832,7 @@
         <t> Supported Groups <xref target="ch_extensions"/></t>
         <t> ECPointFormat <xref target="ch_extensions"/></t>
         <t> ECCurveType <xref target="ske"/></t></list></t>
-      <t> IANA is requested to prepend "TLS" to the names of the previouew three registries.</t>
+      <t> IANA is requested to prepend "TLS" to the names of the previous three registries.</t>
       <t> For each name space, this document defines the initial value assignments and defines a range of 256 values
         (NamedCurve) or eight values (ECPointFormat and ECCurveType) reserved for Private Use.  The policy for any additional
         assignments is "Specification Required". The previous version of this document required IETF review.</t>
