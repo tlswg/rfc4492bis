@@ -877,7 +877,7 @@
         <t> Added TLS 1.2 to references.</t>
         <t> Moved RFC 4492 authors to acknowledgements.</t>
         <t> Removed list of required reading for ECC.</t>
-        <t> Prepended "TLS" to the names of the three registries defined in the IANA Considerations section.</list></t>
+        <t> Prepended "TLS" to the names of the three registries defined in the IANA Considerations section.</t></list></t>
     </section>
 
     <!-- ====================================================================== -->
@@ -1187,3 +1187,4 @@
     </section>
   </back>
 </rfc>
+
