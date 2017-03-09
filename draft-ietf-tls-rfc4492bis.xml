@@ -73,9 +73,9 @@
         <xref target="RFC2246"/>, 1.1 <xref target="RFC4346"/>, and 1.2 <xref target="RFC5246"/>.  The use of ECC in
         TLS 1.3 is defined in <xref target="I-D.ietf-tls-tls13" />, and is explicitly out of scope for this document.
         In particular, this document defines:<list style="symbols">
-        <t> the use of the Elliptic Curve Diffie-Hellman key agreement scheme with ephemeral keys to establish the
+        <t> the use of the ECDHE key agreement scheme with ephemeral keys to establish the
           TLS premaster secret, and</t>
-        <t>the use of ECDSA certificates for authentication of TLS peers.</t></list></t>
+        <t>the use of ECDSA and EdDSA signatures for authentication of TLS peers.</t></list></t>
       <t> The remainder of this document is organized as follows. <xref target="ecdh"/> provides an overview of
         ECC-based key exchange algorithms for TLS. <xref target="clientauth"/> describes the use of ECC certificates
         for client authentication.  TLS extensions that allow a client to negotiate the use of specific curves and
