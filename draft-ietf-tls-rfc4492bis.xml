@@ -290,7 +290,7 @@
         enum {
             deprecated(1..22),
             secp256r1 (23), secp384r1 (24), secp521r1 (25),
-            ecdh_x25519(29), ecdh_x448(30),
+            x25519(29), x448(30),
             reserved (0xFE00..0xFEFF),
             deprecated(0xFF01..0xFF02),
             (0xFFFF)
@@ -303,7 +303,7 @@
             <xref target="SECG-SEC2"/>. These curves are also recommended in ANSI X9.62
             <xref target="ANSI.X9-62.2005"/> and FIPS 186-4 <xref target="FIPS.186-4"/>. The rest of this document
             refers to these three curves as the "NIST curves" because they were originally standardized by the National
-            Institute of Standards and Technology. The curves ecdh_x25519 and ecdh_x448
+            Institute of Standards and Technology. The curves x25519 and x448
             are defined in <xref target="RFC7748"/>.  Values 0xFE00 through 0xFEFF are reserved for private use.</t>
           <t> The predecessor of this document also supported explicitly defined prime and char2 curves, but these are
             deprecated by this specification.</t>
@@ -640,8 +640,8 @@
         } ClientECDiffieHellmanPublic;
 ]]></artwork></figure></t>
           <t> ecdh_Yc: Contains the client's ephemeral ECDH public key as a byte string ECPoint.point,
-            which may represent an elliptic curve point in uncompressed or compressed format. Curves eddsa_ed25519 and
-            eddsa_ed448 MUST NOT be used here. Here, the format MUST conform to what the server has requested through a Supported
+            which may represent an elliptic curve point in uncompressed or compressed format.
+            Here, the format MUST conform to what the server has requested through a Supported
             Point Formats Extension if this extension was used, and MUST be uncompressed if this extension was not
             used.<figure><artwork><![CDATA[
         struct {
@@ -703,9 +703,9 @@
           public keys or signed using EdDSA MUST comply with <xref target="PKIX-EdDSA"/>. Clients SHOULD use the
           elliptic curve domain parameters recommended in ANSI X9.62, FIPS 186-4, and SEC 2
           <xref target="SECG-SEC2"/> or in <xref target="RFC8032"/>.</t>
-        <t>EdDSA keys using Ed25519 and Ed25519ph algorithms MUST use the eddsa_ed25519 curve, and Ed448 and Ed448ph
-          keys MUST use the eddsa_ed448 curve. Curves ecdh_x25519, ecdh_x448, eddsa_ed25519 and eddsa_ed448 MUST NOT be
-          used for ECDSA.</t>
+        <t>EdDSA keys using the Ed25519 algorithm MUST use the ed25519 signature algorithm, and Ed448
+          keys MUST use the ed448 signature algorithm. This document does not define use of Ed25519ph and Ed448ph keys
+          with TLS. Ed25519, Ed25519ph, Ed448, and Ed448ph keys MUST NOT be used with ECDSA.</t>
       </section>
       <section anchor="alg_computes" title="ECDH, ECDSA, and RSA Computations">
         <t> All ECDH calculations for the NIST curves (including parameter and key generation as well as the shared
@@ -719,11 +719,11 @@
           than for computing the master secret.  In TLS 1.0 and 1.1, this means that the MD5- and SHA-1-based TLS
           PRF serves as a KDF; in TLS 1.2 the KDF is determined by ciphersuite; it is conceivable that future TLS
           versions or new TLS extensions introduced in the future may vary this computation.)</t>
-        <t> An ECDHE key exchange using X25519 (curve ecdh_x25519) goes as follows: Each party picks a secret key d
+        <t> An ECDHE key exchange using X25519 (curve x25519) goes as follows: Each party picks a secret key d
           uniformly at random and computes the corresponding public key x = X25519(d, G). Parties exchange their
           public keys, and compute a shared secret as x_S = X25519(d, x_peer). If either party obtains all-zeroes x_S,
           it MUST abort the handshake (as required by definition of X25519 and X448). ECDHE for X448 works similarily,
-          replacing X25519 with X448, and ecdh_x25519 with ecdh_x448.  The derived shared secret is used directly as
+          replacing X25519 with X448, and x25519 with x448.  The derived shared secret is used directly as
           the premaster secret, which is always exactly 32 bytes when ECDHE with X25519 is used and 56 bytes when
           ECDHE with X448 is used.</t>
         <t> All ECDSA computations MUST be performed according to ANSI X9.62 or its successors.  Data to be
@@ -839,7 +839,9 @@
       <t> NOTE: IANA, please update the registries to reflect the new policy.</t>
       <t> NOTE: RFC editor please delete these two notes prior to publication.</t>
       <t> IANA, please update these two registries to refer to this document.</t>
-      <t> IANA has already assigned the value 29 to ecdh_x25519, and the value 30 to ecdh_x448.</t>
+      <t> IANA is requested to assigned the value 29 to x25519, and the value
+        30 to x448 in the TLS Supported Groups Registry. This replaces the
+        temporary registrations ecdh_x25519(29) and ecdh_x448(30).</t>
       <t> IANA is requested to assign two values from the TLS SignatureAlgorithm Registry with names ed25519(TBD3) 
         and ed448(TBD4) with this document as reference. To keep compatibility with TLS 1.3, TBD3 should be 7, 
         and TBD4 should be 8.</t>
