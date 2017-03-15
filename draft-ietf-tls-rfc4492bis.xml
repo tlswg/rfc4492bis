@@ -748,8 +748,7 @@
           information about the private key, to the point that they may recover the entire private key in a few requests, 
           if that key is not really ephemeral.</t>
         <t>With X25519 and X448, a receiving party MUST check whether the computed premaster secret is the all-zero
-          value and abort the handshake if so, as described in section 6 of <xref target="RFC7748"/>. Implementations
-          do not need to perform additional checks beyond this.</t>
+          value and abort the handshake if so, as described in section 6 of <xref target="RFC7748"/>.</t>
         <t>Ed25519 and Ed448 internally do public key validation as part of signature verification.</t>
       </section>
     </section>
