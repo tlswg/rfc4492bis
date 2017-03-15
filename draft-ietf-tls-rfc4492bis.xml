@@ -726,11 +726,10 @@
           replacing X25519 with X448, and ecdh_x25519 with ecdh_x448.  The derived shared secret is used directly as
           the premaster secret, which is always exactly 32 bytes when ECDHE with X25519 is used and 56 bytes when
           ECDHE with X448 is used.</t>
-        <t> All ECDSA computations MUST be performed according to ANSI X9.62 or its successors.  Data to be
-          signed/verified is hashed, and the result run directly through the ECDSA algorithm with no additional
-          hashing.  The default hash function is SHA-1 <xref target="FIPS.180-2"/>, and sha_size (see
-          <xref target="ske"/> and <xref target="cert_verify"/>) is 20. However, an alternative hash function, such
-          as one of the new SHA hash functions specified in FIPS 180-2 <xref target="FIPS.180-2"/>, SHOULD be used instead.</t>
+        <t> All ECDSA computations MUST be performed according to ANSI X9.62 or its successors.  Data to be 
+          signed/verified is hashed, and the result run directly through the ECDSA algorithm with no additional 
+          hashing. A secure hash function such as the SHA-256, SHA-384, and SHA-512 <xref target="FIPS.180-4"/>
+          MUST be used.</t>
         <t> All EdDSA computations MUST be performed according to <xref target="RFC8032"/> or its succesors. Data
           to be signed/verified is run through the EdDSA algorithm wih no hashing (EdDSA will internally run the data
           through the PH function). The context parameter for Ed448 MUST be set to the empty string.</t>
@@ -1107,15 +1106,15 @@
         <seriesInfo name='RFC' value='4492' />
         <format type='HTML' target='http://tools.ietf.org/html/rfc4492' />
       </reference>
-      <reference anchor="FIPS.180-2" target="http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf">
+      <reference anchor="FIPS.180-4" target="http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">
         <front>
-          <title>Secure Hash Standard</title>
+          <title>Secure Hash Standard (SHS)</title>
           <author>
             <organization>National Institute of Standards and Technology</organization>
           </author>
-          <date month="August" year="2002" />
+          <date month="August" year="2015" />
         </front>
-        <seriesInfo name="FIPS" value="PUB 180-2" />
+        <seriesInfo name="FIPS" value="PUB 180-4" />
       </reference>
       <reference  anchor='RFC7919' target='http://www.rfc-editor.org/info/rfc7919'>
         <front>
@@ -1187,4 +1186,3 @@
     </section>
   </back>
 </rfc>
-
