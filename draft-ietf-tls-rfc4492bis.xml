@@ -747,23 +747,10 @@
           mod p. See section 2.3 of <xref target="Menezes"/> for details. Failing to do so allows attackers to gain 
           information about the private key, to the point that they may recover the entire private key in a few requests, 
           if that key is not really ephemeral.</t>
-        <t> X25519 was designed in a way that the result of X25519(x, d) will never reveal information about
-          d, provided it was chosen as prescribed, for any value of x (the same holds true for X448).</t>
-        <t> All-zeroes output from X25519 or X448 MUST NOT be used for premaster secret (as required by definition
-          of X25519 and X448). If the premaster secret would be all zeroes, the handshake MUST be aborted (most
-          probably by sending a fatal alert).</t>
-        <t> Let's define legitimate values of x as the values that can be obtained as x = X25519(G, d') for some
-          d', and call the other values illegitimate.  The definition of the X25519 function shows that legitimate
-          values all share the following property: the high-order bit of the last byte is not set (for X448, any bit
-          can be set).</t>
-        <t> Since there are some implementation of the X25519 function that impose this restriction on their input
-          and others that don't, implementations of X25519 in TLS SHOULD reject public keys when the high-order bit
-          of the final byte is set (in other words, when the value of the rightmost byte is greater than 0x7F) in order
-          to prevent implementation fingerprinting. Note that this deviates from RFC 7748 which suggests that This
-          value be masked.</t>
+        <t>With X25519 and X448, a receiving party MUST check whether the computed premaster secret is the all-zero
+          value and abort the handshake if so, as described in section 6 of <xref target="RFC7748"/>. Implementations
+          do not need to perform additional checks beyond this.</t>
         <t>Ed25519 and Ed448 internally do public key validation as part of signature verification.</t>
-        <t> Other than this recommended check, implementations do not need to ensure that the public keys they receive
-          are legitimate: this is not necessary for security with X25519.</t>
       </section>
     </section>
     <section anchor="suites" title="Cipher Suites">
