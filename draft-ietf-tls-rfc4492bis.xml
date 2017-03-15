@@ -728,7 +728,7 @@
           ECDHE with X448 is used.</t>
         <t> All ECDSA computations MUST be performed according to ANSI X9.62 or its successors.  Data to be 
           signed/verified is hashed, and the result run directly through the ECDSA algorithm with no additional 
-          hashing. A secure hash function such as the SHA-256, SHA-384, and SHA-512 <xref target="FIPS.180-4"/>
+          hashing. A secure hash function such as SHA-256, SHA-384, or SHA-512 from <xref target="FIPS.180-4"/>
           MUST be used.</t>
         <t> All EdDSA computations MUST be performed according to <xref target="RFC8032"/> or its succesors. Data
           to be signed/verified is run through the EdDSA algorithm wih no hashing (EdDSA will internally run the data
