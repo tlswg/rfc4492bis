@@ -575,7 +575,7 @@
           <t> ecdsa_sign: Indicates that the server would like to use the corresponding client
             authentication method specified in <xref target="clientauth"/>.</t></list></t>
         <t> Note that RFC 4492 also defined RSA and ECDSA certificates that included a fixed ECDH
-          public key. This saw very little implementation so this specification is deprecating them.</t>    
+          public key. These mechanisms saw very little implementation so this specification is deprecating them.</t>    
         <t> Actions of the sender:</t>
         <t> The server decides which client authentication methods it would like to use, and conveys this information
           to the client using the format defined above.</t>
