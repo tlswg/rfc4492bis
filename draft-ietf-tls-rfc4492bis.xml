@@ -176,6 +176,8 @@
           its public key in the ClientKeyExchange message.</t>
         <t> Both client and server perform an ECDH operation and use the resultant shared secret as the premaster
           secret.  All ECDH calculations are performed as specified in <xref target="alg_computes"/>.</t>
+      </section>
+      <section anchor="certchainalgs" title="Algorithms in Certificate Chains">    
         <t> This specification does not impose restrictions on signature schemes used anywhere in the certificate chain.
           The previous version of this document required the signatures to match, but this restriction, originating
           in previous TLS versions is lifted here as it had been in RFC 5246.</t>
