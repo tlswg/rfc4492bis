@@ -630,9 +630,7 @@
             backward compatibility only.</t></list></t>
         <t><figure><artwork><![CDATA[
         struct {
-            select (PublicValueEncoding) {
-                case explicit: ECPoint ecdh_Yc;
-            } ecdh_public;
+            ECPoint ecdh_Yc;
         } ClientECDiffieHellmanPublic;
 ]]></artwork></figure></t>
           <t> ecdh_Yc: Contains the client's ephemeral ECDH public key as a byte string ECPoint.point,
@@ -735,7 +733,7 @@
         <t> All RSA signatures must be generated and verified according to <xref target="PKCS1"/> block type 1.</t>
       </section>
       <section anchor="valid25519" title="Public Key Validation">
-        <t> With the NIST curves, each party must validate the public key sent by its peer in the ClientKeyExchange
+        <t> With the NIST curves, each party MUST validate the public key sent by its peer in the ClientKeyExchange
           and ServerKeyExchange messages. A receiving party MUST 
           check that the x and y parameters from the peer's public value satisfy the curve equation, y^2 = x^3 + ax + b 
           mod p. See section 2.3 of <xref target="Menezes"/> for details. Failing to do so allows attackers to gain 
