@@ -259,7 +259,7 @@
 ]]></artwork></figure><list style="symbols">
           <t> elliptic_curves (Supported Elliptic Curves Extension): Indicates the set of elliptic
             curves supported by the client.  For this extension, the opaque extension_data field contains
-            EllipticCurveList.  See <xref target="supp_ec_ext"/> for details.</t>
+            NamedCurveList.  See <xref target="supp_ec_ext"/> for details.</t>
           <t> ec_point_formats (Supported Point Formats Extension): Indicates the set of point formats
             that the client can parse.  For this extension, the opaque extension_data field contains ECPointFormatList.
             See <xref target="supp_pf_ext"/> for details.</t></list></t>
@@ -315,7 +315,7 @@
           <figure><artwork><![CDATA[
         struct {
             NamedCurve named_curve_list<2..2^16-1>
-        } EllipticCurveList;
+        } NamedCurveList;
 ]]></artwork></figure>
           <t> Items in named_curve_list are ordered according to the client's preferences (favorite choice
             first).</t>
@@ -346,9 +346,11 @@
             specified that if this extension is missing, it means that only the uncompressed point format is 
             supported, so interoperability with implementations that support the uncompressed format should work
             with or without the extension.</t>
+          <t> If the client sends the extension and the extension does not contain the uncompressed point format,
+            and the client has used the Supported Groups extension to indicate support for any of the curves defined
+            in this specification then the server MUST abort the handshake and return an illegal_parameter alert.</t>
           <t> The ECPointFormat name space is maintained by IANA.  See <xref target="iana"/> for information on how
             new value assignments are added.</t>
-          <t> Items in ec_point_format_list are ordered according to the client's preferences (favorite choice first).</t>
           <t> A client compliant with this specification that supports no other curves MUST send the following octets;
             note that the first two octets indicate the extension type (Supported Point Formats Extension):<figure><artwork><![CDATA[
         00 0B 00 02 01 00
