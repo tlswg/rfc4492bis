@@ -101,7 +101,8 @@
         generation of bulk encryption/MAC keys and initialization vectors is independent of the key exchange
         algorithm and not impacted by the introduction of ECC.</t>
       <t> <xref target="tbl2"/> summarizes the new key exchange algorithms.  All of these key exchange algorithms
-        provide forward secrecy.</t>
+        provide forward secrecy if and only if fresh ephemeral keys are generated and used, and also destroyed
+        after use.</t>
       <texttable anchor="tbl2" title="ECC Key Exchange Algorithms">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Description</ttcol>
@@ -175,6 +176,8 @@
           its public key in the ClientKeyExchange message.</t>
         <t> Both client and server perform an ECDH operation and use the resultant shared secret as the premaster
           secret.  All ECDH calculations are performed as specified in <xref target="alg_computes"/>.</t>
+      </section>
+      <section anchor="certchainalgs" title="Algorithms in Certificate Chains">    
         <t> This specification does not impose restrictions on signature schemes used anywhere in the certificate chain.
           The previous version of this document required the signatures to match, but this restriction, originating
           in previous TLS versions is lifted here as it had been in RFC 5246.</t>
@@ -185,13 +188,13 @@
         involved: ECDSA_sign. The ECDSA_sign mechanism is usable with any of the non-anonymous ECC key exchange
         algorithms described in <xref target="ecdh"/> as well as other non-anonymous (non-ECC) key exchange
         algorithms defined in TLS.</t>
-      <t> Note that client certificates with EdDSA public keys use this mechanism. </t>
+      <t> Note that client certificates with EdDSA public keys also use this mechanism. </t>
       <t> The server can request ECC-based client authentication by including this certificate type in its
         CertificateRequest message. The client must check if it possesses a certificate appropriate for the method
         suggested by the server and is willing to use it for authentication.</t>
-      <t> If these conditions are not met, the client should send a client Certificate message containing no
-        certificates.  In this case, the ClientKeyExchange should be sent as described in <xref target="ecdh"/>, and
-        the CertificateVerify should not be sent.  If the server requires client authentication, it may respond with
+      <t> If these conditions are not met, the client SHOULD send a client Certificate message containing no
+        certificates.  In this case, the ClientKeyExchange MUST be sent as described in <xref target="ecdh"/>, and
+        the CertificateVerify MUST NOT be sent.  If the server requires client authentication, it may respond with
         a fatal handshake failure alert.</t>
       <t> If the client has an appropriate certificate and is willing to use it for authentication, it must send
         that certificate in the client's Certificate message (as per <xref target="client_cert"/>) and prove
@@ -219,7 +222,7 @@
       <t> A TLS client that proposes ECC cipher suites in its ClientHello message SHOULD include these extensions.
         Servers implementing ECC cipher suites MUST support these extensions, and when a client uses these
         extensions, servers MUST NOT negotiate the use of an ECC cipher suite unless they can complete the
-        handshake while respecting the choice of curves and compression techniques specified by the client.
+        handshake while respecting the choice of curves specified by the client.
         This eliminates the possibility that a negotiated ECC handshake will be subsequently aborted due to a
         client's inability to deal with the server's EC key.</t>
       <t> The client MUST NOT include these extensions in the ClientHello message if it does not propose any ECC
@@ -256,7 +259,7 @@
 ]]></artwork></figure><list style="symbols">
           <t> elliptic_curves (Supported Elliptic Curves Extension): Indicates the set of elliptic
             curves supported by the client.  For this extension, the opaque extension_data field contains
-            EllipticCurveList.  See <xref target="supp_ec_ext"/> for details.</t>
+            NamedCurveList.  See <xref target="supp_ec_ext"/> for details.</t>
           <t> ec_point_formats (Supported Point Formats Extension): Indicates the set of point formats
             that the client can parse.  For this extension, the opaque extension_data field contains ECPointFormatList.
             See <xref target="supp_pf_ext"/> for details.</t></list></t>
@@ -311,10 +314,10 @@
             value assignments are added.</t>
           <figure><artwork><![CDATA[
         struct {
-            NamedCurve elliptic_curve_list<2..2^16-1>
-        } EllipticCurveList;
+            NamedCurve named_curve_list<2..2^16-1>
+        } NamedCurveList;
 ]]></artwork></figure>
-          <t> Items in elliptic_curve_list are ordered according to the client's preferences (favorite choice
+          <t> Items in named_curve_list are ordered according to the client's preferences (favorite choice
             first).</t>
           <t> As an example, a client that only supports secp256r1 (aka NIST P-256; value 23 = 0x0017) and secp384r1
             (aka NIST P-384; value 24 = 0x0018) and prefers to use secp256r1 would include a TLS extension consisting
@@ -339,10 +342,15 @@
             deprecates all but the uncompressed point format. Implementations of this document MUST support the
             uncompressed format for all of their supported curves, and MUST NOT support other formats for curves
             defined in this specification. For backwards compatibility purposes, the point format list extension
-            MUST still be included, and contain exactly one value: the uncompressed point format (0).</t>
+            MAY still be included, and contain exactly one value: the uncompressed point format (0). RFC 4492 
+            specified that if this extension is missing, it means that only the uncompressed point format is 
+            supported, so interoperability with implementations that support the uncompressed format should work
+            with or without the extension.</t>
+          <t> If the client sends the extension and the extension does not contain the uncompressed point format,
+            and the client has used the Supported Groups extension to indicate support for any of the curves defined
+            in this specification then the server MUST abort the handshake and return an illegal_parameter alert.</t>
           <t> The ECPointFormat name space is maintained by IANA.  See <xref target="iana"/> for information on how
             new value assignments are added.</t>
-          <t> Items in ec_point_format_list are ordered according to the client's preferences (favorite choice first).</t>
           <t> A client compliant with this specification that supports no other curves MUST send the following octets;
             note that the first two octets indicate the extension type (Supported Point Formats Extension):<figure><artwork><![CDATA[
         00 0B 00 02 01 00
@@ -398,18 +406,15 @@
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Server Certificate Type</ttcol>
         <c>ECDHE_ECDSA</c><c>Certificate MUST contain an ECDSA- or EdDSA-capable public key.</c>
-        <c>ECDHE_RSA</c><c>Certificate MUST contain an RSA public key authorized for use in digital signatures.</c>
+        <c>ECDHE_RSA</c><c>Certificate MUST contain an RSA public key.</c>
       </texttable>
       <t> Structure of this message:</t>
       <t> Identical to the TLS Certificate format.</t>
       <t> Actions of the sender:</t>
       <t> The server constructs an appropriate certificate chain and conveys it to the client in the Certificate
         message.  If the client has used a Supported Elliptic Curves Extension, the public key in the server's
-        certificate MUST respect the client's choice of elliptic curves; If the client has used a Supported Point 
-        Formats Extension, both
-        the server's public key point and (in the case of an explicit curve) the curve's base point MUST respect
-        the client's choice of point formats.  (A server that cannot satisfy these requirements MUST NOT choose
-        an ECC cipher suite in its ServerHello message.)</t>
+        certificate MUST respect the client's choice of elliptic curves. A server that cannot satisfy this requirement 
+        MUST NOT choose an ECC cipher suite in its ServerHello message.)</t>
       <t> Actions of the receiver:</t>
       <t> The client validates the certificate chain, extracts the server's public key, and checks that the key
         type is appropriate for the negotiated key exchange algorithm.  (A possible reason for a fatal handshake
@@ -431,7 +436,7 @@
             reserved(248..255)
         } ECCurveType;
 ]]></artwork></figure></t>
-        <t> The value named_curve indicates that a named curve is used. This option SHOULD be used when applicable.</t>
+        <t> The value named_curve indicates that a named curve is used. This option is now the only remaining format.</t>
         <t> Values 248 through 255 are reserved for private use.</t>
         <t> The ECCurveType name space is maintained by IANA.  See <xref target="iana"/> for information on how new
           value assignments are added.</t>
@@ -566,13 +571,15 @@
         <t> The TLS CertificateRequest message is extended as follows.<figure><artwork><![CDATA[
         enum {
             ecdsa_sign(64),
-            rsa_fixed_ecdh(65),
-            ecdsa_fixed_ecdh(66),
+            deprecated1(65),  /* was rsa_fixed_ecdh */
+            deprecated2(66),  /* was ecdsa_fixed_ecdh */
             (255)
         } ClientCertificateType;
 ]]></artwork></figure><list style="symbols">
-          <t> ecdsa_sign, etc.: Indicates that the server would like to use the corresponding client
+          <t> ecdsa_sign: Indicates that the server would like to use the corresponding client
             authentication method specified in <xref target="clientauth"/>.</t></list></t>
+        <t> Note that RFC 4492 also defined RSA and ECDSA certificates that included a fixed ECDH
+          public key. These mechanisms saw very little implementation so this specification is deprecating them.</t>    
         <t> Actions of the sender:</t>
         <t> The server decides which client authentication methods it would like to use, and conveys this information
           to the client using the format defined above.</t>
@@ -584,11 +591,9 @@
         <t> When this message is sent:</t>
         <t> This message is sent in response to a CertificateRequest when a client has a suitable certificate and
           has decided to proceed with client authentication.  (Note that if the server has used a Supported Point
-          Formats Extension, a certificate can only be considered suitable for use with the ECDSA_sign, RSA_fixed_ECDH,
-          and ECDSA_fixed_ECDH authentication methods if the public key point specified in it respects the server's
-          choice of point formats.  If no Supported Point Formats Extension has been used, a certificate can only
-          be considered suitable for use with these authentication methods if the point is represented in
-          uncompressed point format.)</t>
+          Formats Extension, a certificate can only be considered suitable for use with the ECDSA_sign
+          authentication method if the public key point specified in it is uncompressed, as that is the only point
+          format still supported.</t>
         <t> Meaning of this message:</t>
         <t> This message is used to authentically convey the client's static public key to the server.  The
           following table summarizes what client certificate types are appropriate for the ECC-based client
@@ -596,16 +601,8 @@
           certificates as described in <xref target="eccerts"/>.</t>
         <t> NOTE: The client's Certificate message is capable of carrying a chain of certificates.  The
           restrictions mentioned in Table 4 apply only to the client's certificate (first in the chain).</t>
-        <texttable anchor="tbl4" title="Client Certificate Types">
-          <ttcol align="left">Client Authentication Method</ttcol>
-          <ttcol align="left">Client Certificate Type</ttcol>
-          <c>ECDSA_sign</c><c>Certificate MUST contain an ECDSA- or EdDSA-capable public key.</c>
-          <c>ECDSA_fixed_ECDH</c><c>Certificate MUST contain an ECDH-capable public key on the same elliptic curve
-            as the server's long-term ECDH key.</c>
-          <c>RSA_fixed_ECDH</c><c>The same as ECDSA_fixed_ECDH. The codepoints meant different things, but due to
-            changes in TLS 1.2, both mean the same thing now.</c>
-      </texttable>
-      <t> Structure of this message:</t>
+        <t> The certificate MUST contain an ECDSA- or EdDSA-capable public key.</t>
+       <t> Structure of this message:</t>
       <t> Identical to the TLS client Certificate format.</t>
       <t> Actions of the sender:</t>
       <t> The client constructs an appropriate certificate chain, and conveys it to the server in the Certificate message.</t>
@@ -615,45 +612,42 @@
       </section>
       <section anchor="cke" title="Client Key Exchange">
         <t> When this message is sent:</t>
-        <t> This message is sent in all key exchange algorithms.  If client authentication with ECDSA_fixed_ECDH
-          or RSA_fixed_ECDH is used, this message is empty.  Otherwise, it contains the client's ephemeral ECDH
+        <t> This message is sent in all key exchange algorithms.  It contains the client's ephemeral ECDH
           public key.</t>
         <t> Meaning of the message:</t>
         <t> This message is used to convey ephemeral data relating to the key exchange belonging to the client (such
           as its ephemeral ECDH public key).</t>
         <t> Structure of this message:</t>
-        <t> The TLS ClientKeyExchange message is extended as follows.<figure><artwork><![CDATA[
+        <t> The TLS ClientKeyExchange message is extended as follows.</t>
+        <t><figure><artwork><![CDATA[
         enum {
             implicit,
             explicit
         } PublicValueEncoding;
-]]></artwork></figure><list style="symbols">
+]]></artwork></figure></t>
+        <t><list style="symbols">
           <t> implicit, explicit: For ECC cipher suites, this indicates whether the client's ECDH public
             key is in the client's certificate ("implicit") or is provided, as an ephemeral ECDH public key, in the
-            ClientKeyExchange message ("explicit").  (This is "explicit" in ECC cipher suites except when the client
-            uses the ECDSA_fixed_ECDH or RSA_fixed_ECDH client authentication mechanism.)<figure><artwork><![CDATA[
+            ClientKeyExchange message ("explicit").  The implicit encoding is deprecated and is retained here for 
+            backward compatibility only.</t></list></t>
+        <t><figure><artwork><![CDATA[
         struct {
-            select (PublicValueEncoding) {
-                case implicit: struct { };
-                case explicit: ECPoint ecdh_Yc;
-            } ecdh_public;
+            ECPoint ecdh_Yc;
         } ClientECDiffieHellmanPublic;
 ]]></artwork></figure></t>
           <t> ecdh_Yc: Contains the client's ephemeral ECDH public key as a byte string ECPoint.point,
-            which may represent an elliptic curve point in uncompressed or compressed format.
-            Here, the format MUST conform to what the server has requested through a Supported
-            Point Formats Extension if this extension was used, and MUST be uncompressed if this extension was not
-            used.<figure><artwork><![CDATA[
+            which may represent an elliptic curve point in uncompressed format.</t>
+          <t><figure><artwork><![CDATA[
         struct {
             select (KeyExchangeAlgorithm) {
                 case ec_diffie_hellman: ClientECDiffieHellmanPublic;
             } exchange_keys;
         } ClientKeyExchange;
-]]></artwork></figure></t></list></t>
+]]></artwork></figure></t>
+
         <t> Actions of the sender:</t>
         <t> The client selects an ephemeral ECDH public key corresponding to the parameters it received from the
-          server according to the ECKAS-DH1 scheme from IEEE 1363.  It conveys this information to the client in
-          the ClientKeyExchange message using the format defined above.</t>
+          server. The format is the same as in <xref target="ske"/>.</t>
         <t> Actions of the receiver:</t>
         <t> The server retrieves the client's ephemeral ECDH public key from the ClientKeyExchange message and checks
           that it is on the same elliptic curve as the server's ECDH key.</t>
@@ -661,7 +655,7 @@
       <section anchor="cert_verify" title="Certificate Verify">
         <t> When this message is sent:</t>
         <t> This message is sent when the client sends a client certificate containing a public key usable for
-          digital signatures, e.g., when the client is authenticated using the ECDSA_sign mechanism.</t>
+          digital signatures.</t>
         <t> Meaning of the message:</t>
         <t> This message contains a signature that proves possession of the private key corresponding to the public
           key in the client's Certificate message.</t>
@@ -741,7 +735,8 @@
         <t> All RSA signatures must be generated and verified according to <xref target="PKCS1"/> block type 1.</t>
       </section>
       <section anchor="valid25519" title="Public Key Validation">
-        <t> With the NIST curves, each party must validate the public key sent by its peer. A receiving party MUST 
+        <t> With the NIST curves, each party MUST validate the public key sent by its peer in the ClientKeyExchange
+          and ServerKeyExchange messages. A receiving party MUST 
           check that the x and y parameters from the peer's public value satisfy the curve equation, y^2 = x^3 + ax + b 
           mod p. See section 2.3 of <xref target="Menezes"/> for details. Failing to do so allows attackers to gain 
           information about the private key, to the point that they may recover the entire private key in a few requests, 
