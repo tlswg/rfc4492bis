@@ -15,7 +15,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="yes" ?>
 <?rfc sortrefs="yes" ?>
-<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-16" category="std" obsoletes="4492">
+<rfc ipr="trust200902" docName="draft-ietf-tls-rfc4492bis-17" category="std" obsoletes="4492">
   <front>
     <title abbrev="ECC Cipher Suites for TLS">Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS) Versions 1.2 and Earlier</title>
     <author initials="Y." surname="Nir" fullname="Yoav Nir">
@@ -747,7 +747,7 @@
       </section>
     </section>
     <section anchor="suites" title="Cipher Suites">
-      <t> The table below defines new ECC cipher suites that use the key exchange algorithms specified in <xref target="ecdh"/>.</t>
+      <t> The table below defines ECC cipher suites that use the key exchange algorithms specified in <xref target="ecdh"/>.</t>
       <texttable anchor="tbl5" title="TLS ECC cipher suites">
           <ttcol align="left">CipherSuite</ttcol>
           <ttcol align="left">Identifier</ttcol>
@@ -755,11 +755,15 @@
           <c>TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x08 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x09 }</c>
           <c>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x0A }</c>
+          <c>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</c><c>{ 0xC0, 0x2B }</c>
+          <c>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</c><c>{ 0xC0, 0x2C }</c>
                     <c> </c><c> </c>
           <c>TLS_ECDHE_RSA_WITH_NULL_SHA</c><c>{ 0xC0, 0x10 }</c>
           <c>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x12 }</c>
           <c>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</c><c>{ 0xC0, 0x13 }</c>
           <c>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</c><c>{ 0xC0, 0x14 }</c>
+          <c>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</c><c>{ 0xC0, 0x2F }</c>
+          <c>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</c><c>{ 0xC0, 0x30 }</c>
                     <c> </c><c> </c>
           <c>TLS_ECDH_anon_WITH_NULL_SHA</c><c>{ 0xC0, 0x15 }</c>
           <c>TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA</c><c>{ 0xC0, 0x17 }</c>
@@ -768,13 +772,14 @@
       </texttable>
       <t> The key exchange method, cipher, and hash algorithm for each of these cipher suites are easily determined
         by examining the name.  Ciphers (other than AES ciphers) and hash algorithms are defined in
-        <xref target="RFC2246"/> and <xref target="RFC4346"/>. AES ciphers are defined in <xref target="RFC5246"/>.</t>
+        <xref target="RFC2246"/> and <xref target="RFC4346"/>. AES ciphers are defined in <xref target="RFC5246"/>, 
+        and AES-GCM ciphersuites are in <xref target="RFC5289"/>.</t>
       <t> Server implementations SHOULD support all of the following cipher suites, and client implementations
         SHOULD support at least one of them:<list style="symbols">
         <t> TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</t>
         <t> TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</t>
         <t> TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</t>
-        <t> TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256</t></list></t>
+        <t> TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</t></list></t>
     </section>
     <section anchor="impstat" title="Implementation Status">
       <t> Both ECDHE and ECDSA with the NIST curves are widely implemented, supported in all major browsers and all 
@@ -919,6 +924,15 @@
         </front>
         <seriesInfo name='RFC' value='4346' />
         <format type='HTML' target='http://tools.ietf.org/html/rfc4346' />
+      </reference>
+      <reference anchor='RFC5289'>
+        <front>
+          <title>TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode (GCM)</title>
+          <author initials='E.' surname='Rescorla' fullname='E. Rescorla' />
+          <date year='2008' month='August' />
+        </front>
+        <seriesInfo name='RFC' value='5289' />
+        <format type='HTML' target='http://tools.ietf.org/html/rfc5289' />
       </reference>
       <reference anchor='RFC5246'>
         <front>
@@ -1169,3 +1183,4 @@
     </section>
   </back>
 </rfc>
+
