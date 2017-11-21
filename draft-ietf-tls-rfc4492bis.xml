@@ -401,7 +401,7 @@
           table shows the server certificate type appropriate for each key exchange algorithm.  ECC public keys MUST
           be encoded in certificates as described in <xref target="eccerts"/>.</t>
         <t> NOTE: The server's Certificate message is capable of carrying a chain of certificates.  The restrictions
-          mentioned in Table 3 apply only to the server's certificate (first in the chain).</t>
+          mentioned in <xref target="tbl3"/> apply only to the server's certificate (first in the chain).</t>
         <texttable anchor="tbl3" title="Server Certificate Types">
         <ttcol align="left">Algorithm</ttcol>
         <ttcol align="left">Server Certificate Type</ttcol>
