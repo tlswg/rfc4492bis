@@ -360,7 +360,7 @@
           <t> The signature_algorithms extension, defined in section 7.4.1.4.1 of <xref target="RFC5246"/>, advertises
             the combinations of signature algorithm and hash function that the client supports. The pure (non pre-hashed)
             forms of EdDSA do not hash the data before signing it. For this reason it does not make sense to combine them
-            with a signature algorithm in the extension.</t>
+            with a hash algorithm in the extension.</t>
           <t> For bits-on-the-wire compatibility with TLS 1.3, we define a new dummy value in the HashAlgorithm registry
             which we will call "Intrinsic" (value TBD5) meaning that hashing is intrinsic to the signature algorithm.</t>
           <t> To represent ed25519 and ed448 in the signature_algorithms extension, the value shall be (TBD5,TBD3) and 
